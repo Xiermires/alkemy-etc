@@ -21,15 +21,15 @@ import java.util.regex.Pattern;
 
 import org.alkemy.util.Assertions;
 
-public class DynamicLabel
+public class DynamicTag
 {
-    private DynamicLabel()
+    private DynamicTag()
     {
     }
 
     public static boolean isDynamic(String raw, Pattern parameterKey)
     {
-        Assertions.exist(raw, parameterKey);
+        Assertions.existAll(raw, parameterKey);
         return parameterKey.matcher(raw).find();
     }
 
@@ -66,7 +66,7 @@ public class DynamicLabel
     
     public static String replace(String raw, Map<String, String> parameters, Pattern parameterKey)
     {
-        Assertions.exist(raw, parameterKey, parameters);
+        Assertions.existAll(raw, parameterKey, parameters);
 
         final Matcher matcher = parameterKey.matcher(raw);
         final StringBuffer sb = new StringBuffer();

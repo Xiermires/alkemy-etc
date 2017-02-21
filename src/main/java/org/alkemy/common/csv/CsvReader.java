@@ -13,46 +13,24 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.common.csv;
 
-import org.alkemy.common.IndexedElementVisitor.Index;
-import org.alkemy.common.TaggedElementVisitor.Tag;
+import org.alkemy.common.IndexedElementVisitor;
+import org.alkemy.common.util.TypedValueFromString;
 
-public class TestClass
+public class CsvReader extends IndexedElementVisitor
 {
-    @Index(0)
-    int i0 = 4;
-
-    @Index(1)
-    int i1 = 3;
-
-    @Index(2)
-    int i2 = 2;
-
-    @Index(3)
-    int i3 = 1;
-
-    @Index(4)
-    int i4 = 0;
-
-    @Tag("id0")
-    int i5 = 4;
-
-    @Tag("id1")
-    int i6 = 3;
-
-    @Tag("id2")
-    int i7 = 2;
-
-    @Tag("id3")
-    int i8 = 1;
-
-    @Tag("id4")
-    int i9 = 0;
-
-    @Tag("{&dyn1}")
-    int i10 = 5;
-
-    @Tag("{&prefix}.bbb.{&infix}.ddd.{&suffix}")
-    int i11 = 6;
+    String[] line;
+    final TypedValueFromString tvfs = new TypedValueFromString(f -> line[f]);
+    
+    public void update(String line)
+    {
+        this.line = line.split(",");
+    }
+    
+    @Override
+    public void visit(IndexedElement e, Object parent)
+    {
+        e.set(tvfs.getValue(e), parent);
+    }
 }

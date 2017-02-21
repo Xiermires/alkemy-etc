@@ -21,77 +21,68 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
-import org.alkemy.AbstractAlkemyElement;
-import org.alkemy.AbstractAlkemyElement.AlkemyElement;
 import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.common.LabelledElementVisitor.LabelledElement;
+import org.alkemy.common.TaggedElementVisitor.TaggedElement;
+import org.alkemy.parse.impl.AbstractAlkemyElement;
+import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
 import org.alkemy.visitor.AlkemyElementVisitor;
 
-public class LabelledElementVisitor implements AlkemyElementVisitor<LabelledElement>
+public abstract class TaggedElementVisitor implements AlkemyElementVisitor<TaggedElement>
 {
-    private final Pattern p;
-    private final BiFunction<String, Object, Object> f;
-    private Map<String, String> dynamicVariables = new HashMap<>();
+    protected final Pattern p;
+    protected Map<String, String> dynamicVariables = new HashMap<>();
 
-    public LabelledElementVisitor(BiFunction<String, Object, Object> f)
+    public TaggedElementVisitor()
     {
-        this(f, "\\{&(.+?)\\}");
+        this("\\{&(.+?)\\}");
     }
 
-    public LabelledElementVisitor(BiFunction<String, Object, Object> f, String dynParamPattern)
+    public TaggedElementVisitor(String dynParamPattern)
     {
-        this.f = f;
         this.p = Pattern.compile(dynParamPattern);
     }
 
-    public LabelledElementVisitor dynamicVariables(Map<String, String> dynamicVariables)
+    public TaggedElementVisitor dynamicVariables(Map<String, String> dynamicVariables)
     {
         this.dynamicVariables = dynamicVariables;
         return this;
     }
-    
-    @Override
-    public void visit(LabelledElement e, Object parent)
-    {
-        f.apply(e.isDynamic ? DynamicLabel.replace(e.raw, dynamicVariables, p) : e.raw, e.get(parent));
-    }
 
     @Override
-    public LabelledElement map(AlkemyElement e)
+    public TaggedElement map(AlkemyElement e)
     {
-        final LabelledElement le = new LabelledElement(e);
-        if (le.isDynamic == null) 
+        final TaggedElement te = new TaggedElement(e);
+        if (te.isDynamic == null) 
         {
-            le.isDynamic = DynamicLabel.isDynamic(le.raw, p);
+            te.isDynamic = DynamicTag.isDynamic(te.raw, p);
         }
-        return le;
+        return te;
     }
     
     @Override
     public boolean accepts(Class<?> type)
     {
-        return LabelledElementVisitor.class.equals(type);
+        return Tag.class == type;
     }
 
-    static class LabelledElement extends AbstractAlkemyElement<LabelledElement>
+    protected static class TaggedElement extends AbstractAlkemyElement<TaggedElement>
     {
-        String raw;
-        Boolean isDynamic = null;
+        public final String raw;
+        public Boolean isDynamic = null;
 
-        protected LabelledElement(AbstractAlkemyElement<?> ae)
+        protected TaggedElement(AbstractAlkemyElement<?> ae)
         {
             super(ae);
-            raw = ae.desc().getAnnotation(Label.class).value();
+            raw = ae.desc().getAnnotation(Tag.class).value();
         }
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.FIELD })
-    @AlkemyLeaf(LabelledElementVisitor.class)
-    public @interface Label
+    @AlkemyLeaf(Tag.class)
+    public @interface Tag
     {
         String value() default "";
     }

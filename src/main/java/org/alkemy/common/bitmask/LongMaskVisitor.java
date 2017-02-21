@@ -13,54 +13,48 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.common.bitmask;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.common.IndexedElementVisitor.IndexedElement;
+import org.alkemy.common.bitmask.BitMask.Bits;
 import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
+import org.alkemy.util.Assertions;
+import org.alkemy.util.Node;
 import org.alkemy.visitor.AlkemyElementVisitor;
+import org.alkemy.visitor.AlkemyNodeVisitor;
 
-public abstract class IndexedElementVisitor implements AlkemyElementVisitor<IndexedElement>
+public class LongMaskVisitor implements AlkemyNodeVisitor, AlkemyElementVisitor<BitMask>
 {
     @Override
-    public IndexedElement map(AlkemyElement e)
+    public BitMask map(AlkemyElement e)
     {
-        return new IndexedElement(e);
+        return new BitMask(e);
+    }
+
+    @Override
+    public Object visit(Node<? extends AbstractAlkemyElement<?>> node, Object arg)
+    {
+        final long l = BitMask.asLong(arg);
+        final Object root = node.data().newInstance();
+        node.children().forEach(c ->
+        {
+            c.data().set(visitArgs(new BitMask(c.data()), l), root);
+        });
+        return root;
+    }
+
+    @Override
+    public Object visitArgs(BitMask element, Object... args)
+    {
+        Assertions.ofSize(args, 1);
+        Assertions.ofListedType(args[0], Long.class);
+        final Long l = (Long) (args[0]);
+        return l >>> element.offset & (long) (Math.pow(2, element.bitCount) - 1);
     }
 
     @Override
     public boolean accepts(Class<?> type)
     {
-        return Index.class == type;
-    }
-
-    public static class IndexedElement extends AbstractAlkemyElement<IndexedElement>
-    {
-        private final int index;
-
-        protected IndexedElement(AbstractAlkemyElement<?> ae)
-        {
-            super(ae);
-            index = ae.desc().getAnnotation(Index.class).value();
-        }
-        
-        public int getIndex()
-        {
-            return index;
-        }
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD })
-    @AlkemyLeaf(Index.class)
-    public @interface Index
-    {
-        int value();
+        return Bits.class == type;
     }
 }

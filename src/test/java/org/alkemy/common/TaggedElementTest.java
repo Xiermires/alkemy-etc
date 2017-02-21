@@ -21,20 +21,20 @@ import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiFunction;
 
 import org.alkemy.Alkemist;
 import org.alkemy.AlkemistBuilder;
-import org.alkemy.common.LabelledElementVisitor;
 import org.alkemy.util.Measure;
 import org.junit.Test;
 
-public class LabelledElementTest
+public class TaggedElementTest
 {
     @Test
-    public void testStaticLabels()
+    public void testStaticTags()
     {
         final Properties props = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new LabelledElementVisitor((a, b) -> props.put(a, b))).build();
+        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnTagged((a, b) -> props.put(a, b))).build();
         final TestClass tc = new TestClass();
 
         alkemist.process(tc);
@@ -47,7 +47,7 @@ public class LabelledElementTest
     }
 
     @Test
-    public void testDynamicLabels()
+    public void testDynamicTags()
     {
         final Properties props = new Properties();
         final Map<String, String> dynParams = new HashMap<>();
@@ -55,7 +55,7 @@ public class LabelledElementTest
         dynParams.put("prefix", "aaa");
         dynParams.put("infix", "ccc");
         dynParams.put("suffix", "eee");
-        final LabelledElementVisitor aev = new LabelledElementVisitor((a, b) -> props.put(a, b)).dynamicVariables(dynParams);
+        final TaggedElementVisitor aev = new FunctionOnTagged((a, b) -> props.put(a, b)).dynamicVariables(dynParams);
         final Alkemist alkemist = new AlkemistBuilder().visitor(aev).build();
         final TestClass tc = new TestClass();
 
@@ -66,19 +66,35 @@ public class LabelledElementTest
     }
 
     @Test
-    public void performanceLabelled() throws Throwable
+    public void performanceTagged() throws Throwable
     {
         final Map<String, Integer> m = new HashMap<String, Integer>();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new LabelledElementVisitor((a, b) -> m.put(a, (Integer) b)))
+        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnTagged((a, b) -> m.put(a, (Integer) b)))
                 .build();
         final TestClass tc = new TestClass();
 
-        System.out.println("Handle 5e6 labelled elements: " + Measure.measure(() ->
+        System.out.println("Handle 5e6 tagged elements: " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
                 alkemist.process(tc);
             }
         }) / 1000000 + " ms");
+    }
+    
+    public class FunctionOnTagged extends TaggedElementVisitor
+    {
+        private final BiFunction<String, Object, Object> f;
+
+        public FunctionOnTagged(BiFunction<String, Object, Object> f)
+        {
+            this.f = f;
+        }
+        
+        @Override
+        public void visit(TaggedElement e, Object parent)
+        {
+            f.apply(e.isDynamic ? DynamicTag.replace(e.raw, dynamicVariables, p) : e.raw, e.get(parent));
+        }
     }
 }

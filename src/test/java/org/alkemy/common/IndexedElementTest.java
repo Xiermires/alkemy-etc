@@ -19,10 +19,10 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
 
 import java.util.Properties;
+import java.util.function.BiFunction;
 
 import org.alkemy.Alkemist;
 import org.alkemy.AlkemistBuilder;
-import org.alkemy.common.IndexedElementVisitor;
 import org.alkemy.util.Measure;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class IndexedElementTest
     public void testIndexedElement()
     {
         final Properties m = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new IndexedElementVisitor((a, b) -> m.put(a, b))).build();
+        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnIndexed((a, b) -> m.put(a, b))).build();
         final TestClass tc = new TestClass();
 
         alkemist.process(tc);
@@ -48,7 +48,7 @@ public class IndexedElementTest
     public void performanceIndexed() throws Throwable
     {
         final Properties m = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new IndexedElementVisitor((a, b) -> m.put(a, b))).build();
+        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnIndexed((a, b) -> m.put(a, b))).build();
         final TestClass tc = new TestClass();
 
         System.out.println("Handle 5e6 indexed elements: " + Measure.measure(() ->
@@ -58,5 +58,21 @@ public class IndexedElementTest
                 alkemist.process(tc);
             }
         }) / 1000000 + " ms");
+    }
+    
+    public class FunctionOnIndexed extends IndexedElementVisitor
+    {
+        private BiFunction<Integer, Object, Object> f;
+
+        public FunctionOnIndexed(BiFunction<Integer, Object, Object> f)
+        {
+            this.f = f;
+        }
+
+        @Override
+        public void visit(IndexedElement e, Object parent)
+        {
+            f.apply(e.getIndex(), e.get(parent));
+        }
     }
 }
