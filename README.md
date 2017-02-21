@@ -1,7 +1,6 @@
-# alkemy
-From Al"ch"emy. "Purify, mature and perfect certain objects."
+# alkemy-commons
 
-v0.7 (still dev.)
+Some tools using Alkemy but not suitable for the main lib.
 
 --------
 Overview
