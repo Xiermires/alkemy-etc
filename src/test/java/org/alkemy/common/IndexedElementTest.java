@@ -70,7 +70,7 @@ public class IndexedElementTest
         }
 
         @Override
-        public void visit(IndexedElement e, Object parent)
+        public void visitArgs(IndexedElement e, Object parent, Object... args)
         {
             f.apply(e.getIndex(), e.get(parent));
         }

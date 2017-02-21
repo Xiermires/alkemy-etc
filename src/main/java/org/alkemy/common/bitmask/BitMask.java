@@ -26,32 +26,6 @@ import org.alkemy.util.Assertions;
 
 public class BitMask extends AbstractAlkemyElement<BitMask>
 {
-    final int offset;
-    final int bitCount;
-
-    protected BitMask(AbstractAlkemyElement<?> other)
-    {
-        super(other);
-
-        final Bits bit = other.desc().getAnnotation(Bits.class);
-        Assertions.exists(bit);
-        Assertions.greaterEqualThan(bit.pos(), 0);
-        Assertions.greaterEqualThan(bit.count(), 0);
-
-        offset = bit.pos();
-        bitCount = bit.count();
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD })
-    @AlkemyLeaf(Bits.class)
-    public @interface Bits
-    {
-        int pos(); // offset
-
-        int count() default 1;
-    }
-
     private static long[] lmask = new long[] { 0xFF00000000000000l, //
             0x00FF000000000000l, //
             0x0000FF0000000000l, //
@@ -92,5 +66,31 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
             l = l | ((bytes[bytes.length - i] << shift) & mask);
         }
         return l;
+    }
+
+    final int offset;
+    final int bitCount;
+
+    protected BitMask(AbstractAlkemyElement<?> other)
+    {
+        super(other);
+
+        final Bits bit = other.desc().getAnnotation(Bits.class);
+        Assertions.exists(bit);
+        Assertions.greaterEqualThan(bit.pos(), 0);
+        Assertions.greaterEqualThan(bit.count(), 0);
+
+        offset = bit.pos();
+        bitCount = bit.count();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD })
+    @AlkemyLeaf(Bits.class)
+    public @interface Bits
+    {
+        int pos(); // offset
+
+        int count() default 1;
     }
 }

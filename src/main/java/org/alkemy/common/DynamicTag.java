@@ -46,24 +46,7 @@ public class DynamicTag
      * parameters : { { "prefix: "aaa" }, { "infix": "ccc" }, { "suffix": "eee" } } <br>
      * DynamicLabel.solve(raw, parameters, Pattern.compile(regex)) = "aaa.bbb.ccc.ddd.eee"
      */
-    /*public static String replace(String raw, Map<String, String> parameters, Pattern parameterKey)
-    {
-        Assertions.exist(raw, parameterKey, parameters);
-
-        final Matcher matcher = parameterKey.matcher(raw);
-        final StringBuffer sb = new StringBuffer();
-        int s = 0;
-        while (matcher.find())
-        {
-            final String paramKey = matcher.group(1);
-            final String replacement = parameters.get(paramKey);
-            matcher.appendReplacement(sb, replacement == null ? paramKey : replacement);
-            s = matcher.end();
-        }
-        sb.append(raw.substring(s));
-        return sb.toString();
-    }*/
-    
+    // This is elegant and allows user parameter definition but so slow... 
     public static String replace(String raw, Map<String, String> parameters, Pattern parameterKey)
     {
         Assertions.existAll(raw, parameterKey, parameters);
@@ -79,6 +62,33 @@ public class DynamicTag
             s = matcher.end();
         }
         sb.append(raw.substring(s));
+        return sb.toString();
+    }
+
+    // fix {&key} definition (which user won't change anyway). It is faster (~ 2.3x) but ugly. 
+    public static String replaceFast(String raw, Map<String, String> parameters)
+    {
+        Assertions.existAll(raw, parameters);
+
+        int i = 0;
+        int j = 0;
+        StringBuilder sb = new StringBuilder();
+        i = raw.indexOf("{&", i);
+        while (i != -1)
+        {
+            if (i > j)
+            {
+                sb.append(raw.substring(j, i));
+            }
+            j = raw.indexOf("}", i);
+            sb.append(parameters.get(raw.substring(i + 2, j)));
+            i = raw.indexOf("{&", j++);
+        }
+
+        if (j + 1 < raw.length())
+        {
+            sb.append(raw.substring(j + 1));
+        }
         return sb.toString();
     }
 }

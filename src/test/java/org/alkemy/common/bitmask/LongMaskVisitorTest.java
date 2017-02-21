@@ -27,22 +27,22 @@ public class LongMaskVisitorTest
     @Test
     public void testMaskOneBit()
     {
-        final Alkemist alkemist = new AlkemistBuilder().build(new LongMaskVisitor());
-        final TestClass tc15 = alkemist.map(TestClass.class, new byte[] { 15 });
+        final Alkemist alkemist = new AlkemistBuilder().visitor(new LongMaskVisitor()).build(AlkemistBuilder.STANDARD_WRITE);
+        final TestClass tc15 = alkemist.process(TestClass.class, BitMask.asLong(new byte[] { 15 }));
 
         assertThat(tc15.a, is(1));
         assertThat(tc15.b, is(1));
         assertThat(tc15.c, is(1));
         assertThat(tc15.d, is(1));
 
-        final TestClass tc8 = alkemist.map(TestClass.class, new byte[] { 8 });
+        final TestClass tc8 = alkemist.process(TestClass.class, 8l);
 
         assertThat(tc8.a, is(1));
         assertThat(tc8.b, is(0));
         assertThat(tc8.c, is(0));
         assertThat(tc8.d, is(0));
 
-        final TestClass tc13 = alkemist.map(TestClass.class, new byte[] { 13 });
+        final TestClass tc13 = alkemist.process(TestClass.class, 13l);
 
         assertThat(tc13.a, is(1));
         assertThat(tc13.b, is(1));
@@ -53,8 +53,8 @@ public class LongMaskVisitorTest
     @Test
     public void testMp3Frame()
     {
-        final Alkemist alkemist = new AlkemistBuilder().build(new LongMaskVisitor());
-        final TestMp3Frame frame = alkemist.map(TestMp3Frame.class, new byte[] { -1, -5, -112, 0 }); // Valid mp3 header (as int) : -290816
+        final Alkemist alkemist = new AlkemistBuilder().visitor(new LongMaskVisitor()).build(AlkemistBuilder.STANDARD_WRITE);
+        final TestMp3Frame frame = alkemist.process(TestMp3Frame.class, BitMask.asLong(new byte[] { -1, -5, -112, 0 })); // Valid mp3 header (as int) : -290816
 
         assertThat(frame.framSync, is(2047));
         assertThat(frame.version, is(3));

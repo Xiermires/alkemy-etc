@@ -29,7 +29,7 @@ public class CsvReader extends IndexedElementVisitor
     }
     
     @Override
-    public void visit(IndexedElement e, Object parent)
+    public void visitArgs(IndexedElement e, Object parent, Object... args)
     {
         e.set(tvfs.getValue(e), parent);
     }
