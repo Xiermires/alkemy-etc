@@ -19,15 +19,15 @@ import org.alkemy.common.bitmask.BitMask.Bits;
 
 public class TestClass
 {
-    @Bits(pos = 3)
+    @Bits(shift = 3)
     int a;
     
-    @Bits(pos = 2)
+    @Bits(shift = 2)
     int b;
     
-    @Bits(pos = 1)
+    @Bits(shift = 1)
     int c;
     
-    @Bits(pos = 0)
+    @Bits(shift = 0)
     int d;
 }

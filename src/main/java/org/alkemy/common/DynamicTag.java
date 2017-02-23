@@ -29,7 +29,7 @@ public class DynamicTag
 
     public static boolean isDynamic(String raw, Pattern parameterKey)
     {
-        Assertions.existAll(raw, parameterKey);
+        Assertions.noneNull(raw, parameterKey);
         return parameterKey.matcher(raw).find();
     }
 
@@ -49,7 +49,7 @@ public class DynamicTag
     // This is elegant and allows user parameter definition but so slow... 
     public static String replace(String raw, Map<String, String> parameters, Pattern parameterKey)
     {
-        Assertions.existAll(raw, parameterKey, parameters);
+        Assertions.noneNull(raw, parameterKey, parameters);
 
         final Matcher matcher = parameterKey.matcher(raw);
         final StringBuffer sb = new StringBuffer();
@@ -68,7 +68,7 @@ public class DynamicTag
     // fix {&key} definition (which user won't change anyway). It is faster (~ 2.3x) but ugly. 
     public static String replaceFast(String raw, Map<String, String> parameters)
     {
-        Assertions.existAll(raw, parameters);
+        Assertions.noneNull(raw, parameters);
 
         int i = 0;
         int j = 0;

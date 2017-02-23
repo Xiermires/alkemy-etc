@@ -29,7 +29,7 @@ public class LongMaskVisitor implements AlkemyElementVisitor<BitMask>
     }
 
     @Override
-    public void visitArgs(BitMask element, Object parent, Object... args)
+    public void visit(BitMask element, Object parent, Object... args)
     {
         Assertions.ofSize(args, 1);
         Assertions.ofListedType(args[0], Long.class);

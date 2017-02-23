@@ -21,9 +21,11 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.alkemy.Alkemist;
-import org.alkemy.AlkemistBuilder;
+import org.alkemy.Alkemy;
+import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.util.Measure;
+import org.alkemy.util.Node;
+import org.alkemy.visitor.impl.AlkemyPreorderReader.FluentAlkemyPreorderReader;
 import org.junit.Test;
 
 public class IndexedElementTest
@@ -32,10 +34,9 @@ public class IndexedElementTest
     public void testIndexedElement()
     {
         final Properties m = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnIndexed((a, b) -> m.put(a, b))).build();
         final TestClass tc = new TestClass();
-
-        alkemist.process(tc);
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(new FunctionOnIndexed((a, b) -> m.put(a, b)),
+                Alkemy.nodes().get(TestClass.class), tc);
 
         assertThat(m, hasEntry(0, 4));
         assertThat(m, hasEntry(1, 3));
@@ -48,18 +49,21 @@ public class IndexedElementTest
     public void performanceIndexed() throws Throwable
     {
         final Properties m = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnIndexed((a, b) -> m.put(a, b))).build();
+        
         final TestClass tc = new TestClass();
+        final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
+        final FunctionOnIndexed aev = new FunctionOnIndexed((a, b) -> m.put(a, b));
+        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 indexed elements: " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                alkemist.process(tc);
+                anv.accept(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
-    
+
     public class FunctionOnIndexed extends IndexedElementVisitor
     {
         private BiFunction<Integer, Object, Object> f;
@@ -70,7 +74,7 @@ public class IndexedElementTest
         }
 
         @Override
-        public void visitArgs(IndexedElement e, Object parent, Object... args)
+        public void visit(IndexedElement e, Object parent, Object... args)
         {
             f.apply(e.getIndex(), e.get(parent));
         }

@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.alkemy.Alkemist;
-import org.alkemy.AlkemistBuilder;
+import org.alkemy.Alkemy;
+import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.util.Measure;
+import org.alkemy.util.Node;
+import org.alkemy.visitor.impl.AlkemyPreorderReader.FluentAlkemyPreorderReader;
 import org.junit.Test;
 
 public class TaggedElementTest
@@ -34,10 +36,8 @@ public class TaggedElementTest
     public void testStaticTags()
     {
         final Properties props = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnTaggedSlow((a, b) -> props.put(a, b))).build();
-        final TestClass tc = new TestClass();
-
-        alkemist.process(tc);
+        new FluentAlkemyPreorderReader<>(false, false, false).accept(new FunctionOnTaggedSlow((a, b) -> props.put(a, b)), Alkemy
+                .nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id0", 4));
         assertThat(props, hasEntry("id1", 3));
@@ -50,16 +50,9 @@ public class TaggedElementTest
     public void testDynamicTags()
     {
         final Properties props = new Properties();
-        final Map<String, String> dynParams = new HashMap<>();
-        dynParams.put("dyn1", "id10");
-        dynParams.put("prefix", "aaa");
-        dynParams.put("infix", "ccc");
-        dynParams.put("suffix", "eee");
-        final TaggedElementVisitor aev = new FunctionOnTaggedSlow((a, b) -> props.put(a, b)).dynamicVariables(dynParams);
-        final Alkemist alkemist = new AlkemistBuilder().visitor(aev).build();
-        final TestClass tc = new TestClass();
-
-        alkemist.process(tc);
+        new FluentAlkemyPreorderReader<>(false, false, false).accept(
+                new FunctionOnTaggedSlow((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
+                Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id10", 5));
         assertThat(props, hasEntry("aaa.bbb.ccc.ddd.eee", 6));
@@ -69,10 +62,8 @@ public class TaggedElementTest
     public void testStaticTagsFast()
     {
         final Properties props = new Properties();
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new FunctionOnTaggedFast((a, b) -> props.put(a, b))).build();
-        final TestClass tc = new TestClass();
-
-        alkemist.process(tc);
+        new FluentAlkemyPreorderReader<>(false, false, false).accept(new FunctionOnTaggedSlow((a, b) -> props.put(a, b)), Alkemy
+                .nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id0", 4));
         assertThat(props, hasEntry("id1", 3));
@@ -85,16 +76,9 @@ public class TaggedElementTest
     public void testDynamicTagsFast()
     {
         final Properties props = new Properties();
-        final Map<String, String> dynParams = new HashMap<>();
-        dynParams.put("dyn1", "id10");
-        dynParams.put("prefix", "aaa");
-        dynParams.put("infix", "ccc");
-        dynParams.put("suffix", "eee");
-        final TaggedElementVisitor aev = new FunctionOnTaggedFast((a, b) -> props.put(a, b)).dynamicVariables(dynParams);
-        final Alkemist alkemist = new AlkemistBuilder().visitor(aev).build();
-        final TestClass tc = new TestClass();
-
-        alkemist.process(tc);
+        new FluentAlkemyPreorderReader<>(false, false, false).accept(
+                new FunctionOnTaggedFast((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
+                Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id10", 5));
         assertThat(props, hasEntry("aaa.bbb.ccc.ddd.eee", 6));
@@ -104,20 +88,16 @@ public class TaggedElementTest
     public void performanceTaggedSlowVersion() throws Throwable
     {
         final Properties props = new Properties();
-        final Map<String, String> dynParams = new HashMap<>();
-        dynParams.put("dyn1", "id10");
-        dynParams.put("prefix", "aaa");
-        dynParams.put("infix", "ccc");
-        dynParams.put("suffix", "eee");
-        final Alkemist alkemist = new AlkemistBuilder().visitor(
-                new FunctionOnTaggedSlow((a, b) -> props.put(a, b)).dynamicVariables(dynParams)).build();
         final TestClass tc = new TestClass();
+        final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
+        final TaggedElementVisitor aev = new FunctionOnTaggedSlow((a, b) -> props.put(a, b)).dynamicVariables(dynParams());
+        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 tagged elements (slow version): " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                alkemist.process(tc);
+                anv.accept(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
@@ -125,23 +105,29 @@ public class TaggedElementTest
     @Test
     public void performanceTaggedFastVersion() throws Throwable
     {
-        final Properties m = new Properties();
-        final Map<String, String> dynParams = new HashMap<>();
-        dynParams.put("dyn1", "id10");
-        dynParams.put("prefix", "aaa");
-        dynParams.put("infix", "ccc");
-        dynParams.put("suffix", "eee");
-        final Alkemist alkemist = new AlkemistBuilder().visitor(
-                new FunctionOnTaggedFast((a, b) -> m.put(a, b)).dynamicVariables(dynParams)).build();
+        final Properties props = new Properties();
         final TestClass tc = new TestClass();
+        final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
+        final TaggedElementVisitor aev = new FunctionOnTaggedFast((a, b) -> props.put(a, b)).dynamicVariables(dynParams());
+        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 tagged elements (fast version): " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                alkemist.process(tc);
+                anv.accept(aev, node, tc);
             }
         }) / 1000000 + " ms");
+    }
+
+    private Map<String, String> dynParams()
+    {
+        final Map<String, String> dynParams = new HashMap<>();
+        dynParams.put("dyn1", "id10");
+        dynParams.put("prefix", "aaa");
+        dynParams.put("infix", "ccc");
+        dynParams.put("suffix", "eee");
+        return dynParams;
     }
 
     public class FunctionOnTaggedSlow extends TaggedElementVisitor
@@ -154,7 +140,7 @@ public class TaggedElementTest
         }
 
         @Override
-        public void visitArgs(TaggedElement e, Object parent, Object... args)
+        public void visit(TaggedElement e, Object parent, Object... args)
         {
             f.apply(e.isDynamic ? DynamicTag.replace(e.raw, dynamicVariables, p) : e.raw, e.get(parent));
         }
@@ -170,7 +156,7 @@ public class TaggedElementTest
         }
 
         @Override
-        public void visitArgs(TaggedElement e, Object parent, Object... args)
+        public void visit(TaggedElement e, Object parent, Object... args)
         {
             f.apply(e.isDynamic ? DynamicTag.replaceFast(e.raw, dynamicVariables) : e.raw, e.get(parent));
         }

@@ -35,7 +35,7 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
             0x000000000000FF00l, //
             0x00000000000000FFl };
 
-    static long asLong(Object arg)
+    static long bytesToLong(Object arg)
     {
         Assertions.ofListedType(arg, byte[].class, Integer.class, Long.class);
 
@@ -76,12 +76,12 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
         super(other);
 
         final Bits bit = other.desc().getAnnotation(Bits.class);
-        Assertions.exists(bit);
-        Assertions.greaterEqualThan(bit.pos(), 0);
-        Assertions.greaterEqualThan(bit.count(), 0);
+        Assertions.nonNull(bit);
+        Assertions.greaterEqualThan(bit.shift(), 0);
+        Assertions.greaterEqualThan(bit.bitCount(), 0);
 
-        offset = bit.pos();
-        bitCount = bit.count();
+        offset = bit.shift();
+        bitCount = bit.bitCount();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -89,8 +89,8 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
     @AlkemyLeaf(Bits.class)
     public @interface Bits
     {
-        int pos(); // offset
+        int shift(); 
 
-        int count() default 1;
+        int bitCount() default 1;
     }
 }

@@ -24,16 +24,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-import org.alkemy.Alkemist;
-import org.alkemy.AlkemistBuilder;
+import org.alkemy.Alkemy;
+import org.alkemy.parse.impl.AbstractAlkemyElement;
+import org.alkemy.util.Node;
+import org.alkemy.visitor.AlkemyNodeVisitor.Entry;
+import org.alkemy.visitor.impl.AlkemyPreorderReader;
 import org.junit.Test;
 
 public class CsvReaderTest
 {
     private static final String NEW_LINE = System.getProperty("line.separator");
-    private static final String EXAMPLE = "0,1.0,2.0,12345678902,4" + NEW_LINE + "9,1.0,7f,12345678901,5";
+    private static final String EXAMPLE = "0,1.2,2.3,12345678902,4" + NEW_LINE + "9,1.65,7f,12345678901,5";
 
     @Test
     public void testCsvReader() throws IOException
@@ -42,29 +44,31 @@ public class CsvReaderTest
         final BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
+        final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(true, true, false);
+        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
         final CsvReader aev = new CsvReader();
-        final Consumer<String> before = s -> aev.update(s);
-
-        final Alkemist alkemist = new AlkemistBuilder().visitor(aev).build(AlkemistBuilder.STANDARD_WRITE);
-        final List<TestClass> tcs = new ArrayList<>();
-        for (TestClass tc : alkemist.iterable(TestClass.class, before, reader.lines().iterator()))
-        {
-            tcs.add(tc);
-        }
-        assertThat(tcs.size(), is(2));
         
+        final List<TestClass> tcs = new ArrayList<>();
+        for (Entry<TestClass, String> entry : anv.iterable(aev, node, reader.lines().iterator(), TestClass.class))
+        {
+            tcs.add(entry.result());
+            aev.update(entry.peekNext());
+        }
+
+        assertThat(tcs.size(), is(2));
+
         assertThat(tcs.get(0).a, is(0));
-        assertThat(tcs.get(0).b, is(1d));
-        assertThat(tcs.get(0).c, is(2f));
+        assertThat(tcs.get(0).b, is(1.2d));
+        assertThat(tcs.get(0).c, is(2.3f));
         assertThat(tcs.get(0).d, is(12345678902l));
         assertThat(tcs.get(0).e, is(4));
-        
+
         assertThat(tcs.get(1).a, is(9));
-        assertThat(tcs.get(1).b, is(1d));
+        assertThat(tcs.get(1).b, is(1.65d));
         assertThat(tcs.get(1).c, is(7f));
         assertThat(tcs.get(1).d, is(12345678901l));
         assertThat(tcs.get(1).e, is(5));
-        
+
         reader.close();
     }
 }

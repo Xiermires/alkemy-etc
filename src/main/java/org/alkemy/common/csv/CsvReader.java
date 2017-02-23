@@ -25,12 +25,23 @@ public class CsvReader extends IndexedElementVisitor
     
     public void update(String line)
     {
-        this.line = line.split(",");
+        if (line == null)
+        {
+            this.line = null;
+        }
+        else
+        {
+            this.line = line.split(",");
+        }
     }
     
     @Override
-    public void visitArgs(IndexedElement e, Object parent, Object... args)
+    public void visit(IndexedElement e, Object parent, Object... args)
     {
+        if (line == null)
+        {
+            update((String) args[0]);
+        }
         e.set(tvfs.getValue(e), parent);
     }
 }

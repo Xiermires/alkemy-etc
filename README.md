@@ -109,22 +109,22 @@ The test class :
 ```java
 public class TestMp3Frame
 {
-    @Bits(pos = 21, count = 11)
+    @Bits(shift = 21, bitCount = 11)
     int framSync;
     
-    @Bits(pos = 19, count = 2)
+    @Bits(shift = 19, bitCount = 2)
     int version;
     
-    @Bits(pos = 17, count = 2)
+    @Bits(shift = 17, bitCount = 2)
     int layer;
     
-    @Bits(pos = 12, count = 4)
+    @Bits(shift = 12, bitCount = 4)
     int bitrate;
     
-    @Bits(pos = 10, count = 2)
+    @Bits(shift = 10, bitCount = 2)
     int samplerate;
     
-    @Bits(pos = 9)
+    @Bits(shift = 9)
     int padding;
 }
 ```
@@ -228,10 +228,10 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
         final Bits bit = other.desc().getAnnotation(Bits.class);
         Assertions.exists(bit);
         Assertions.greaterEqualThan(bit.pos(), 0);
-        Assertions.greaterEqualThan(bit.count(), 0);
+        Assertions.greaterEqualThan(bit.bitCount(), 0);
 
         offset = bit.pos();
-        bitCount = bit.count();
+        bitCount = bit.bitCount();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -239,9 +239,9 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
     @AlkemyLeaf(Bits.class)
     public @interface Bits
     {
-        int pos(); // offset
+        int shift(); 
 
-        int count() default 1;
+        int bitCount() default 1;
     }
 }
 ```

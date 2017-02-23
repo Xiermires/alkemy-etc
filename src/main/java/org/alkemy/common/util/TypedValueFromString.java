@@ -70,7 +70,7 @@ public class TypedValueFromString extends AbstractAlkemyValueProvider<IndexedEle
     public Character getChar(IndexedElement e)
     {
         final String s = provider.apply(e.getIndex());
-        Assertions.isTrue(s.length() == 1, String.format("The string '%s' can't be converted to char.", s));
+        Assertions.isTrue(s.length() == 1, "The string '%s' can't be converted to char.", s);
         return Character.valueOf(s.charAt(0));
     }
 
