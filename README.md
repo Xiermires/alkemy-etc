@@ -53,29 +53,31 @@ A test class showing how-to object map csv lines.
         final BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
+        final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(true, true, false);
+        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
         final CsvReader aev = new CsvReader();
-        final Consumer<String> before = s -> aev.update(s); // this is called before processing each line
-
-        final Alkemist alkemist = new AlkemistBuilder().visitor(aev).build(AlkemistBuilder.STANDARD_WRITE); 
-        final List<TestClass> tcs = new ArrayList<>();
-        for (TestClass tc : alkemist.iterable(TestClass.class, before, reader.lines().iterator()))
-        {
-            tcs.add(tc);
-        }
-        assertThat(tcs.size(), is(2));
         
+        final List<TestClass> tcs = new ArrayList<>();
+        for (Entry<TestClass, String> entry : anv.iterable(aev, node, reader.lines().iterator(), TestClass.class))
+        {
+            tcs.add(entry.result());
+            aev.update(entry.peekNext());
+        }
+
+        assertThat(tcs.size(), is(2));
+
         assertThat(tcs.get(0).a, is(0));
-        assertThat(tcs.get(0).b, is(1d));
-        assertThat(tcs.get(0).c, is(2f));
+        assertThat(tcs.get(0).b, is(1.2d));
+        assertThat(tcs.get(0).c, is(2.3f));
         assertThat(tcs.get(0).d, is(12345678902l));
         assertThat(tcs.get(0).e, is(4));
-        
+
         assertThat(tcs.get(1).a, is(9));
-        assertThat(tcs.get(1).b, is(1d));
+        assertThat(tcs.get(1).b, is(1.65d));
         assertThat(tcs.get(1).c, is(7f));
         assertThat(tcs.get(1).d, is(12345678901l));
         assertThat(tcs.get(1).e, is(5));
-        
+
         reader.close();
     }
 ```
@@ -83,20 +85,30 @@ A test class showing how-to object map csv lines.
 Here the visitor class.
 
 ```java
-
-public class CsvReader extends IndexedElementVisitor
+public class CsvReader extends IndexedElementVisitor<String>
 {
     String[] line;
     final TypedValueFromString tvfs = new TypedValueFromString(f -> line[f]);
     
     public void update(String line)
     {
-        this.line = line.split(",");
+        if (line == null)
+        {
+            this.line = null;
+        }
+        else
+        {
+            this.line = line.split(",");
+        }
     }
     
     @Override
-    public void visitArgs(IndexedElement e, Object parent, Object... args)
+    public void visit(IndexedElement e, Object parent, String parameter)
     {
+        if (line == null)
+        {
+            update(parameter);
+        }
         e.set(tvfs.getValue(e), parent);
     }
 }
@@ -135,8 +147,9 @@ The test using it. A mp3 frame header parser :
     @Test
     public void testMp3Frame()
     {
-        final Alkemist alkemist = new AlkemistBuilder().visitor(new LongMaskVisitor()).build(AlkemistBuilder.STANDARD_WRITE);
-        final TestMp3Frame frame = alkemist.process(TestMp3Frame.class, BitMask.asLong(new byte[] { -1, -5, -112, 0 })); // Valid mp3 header (as int) : -290816
+        final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
+        final AlkemyPreorderReader<TestMp3Frame, Long> anv = new AlkemyPreorderReader<>(true, true, false);
+        final TestMp3Frame frame = anv.accept(aev, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }), TestMp3Frame.class);
 
         assertThat(frame.framSync, is(2047));
         assertThat(frame.version, is(3));
@@ -150,7 +163,7 @@ The test using it. A mp3 frame header parser :
 Finally the visitor class and the bitwise logic :
 
 ```java
-public class LongMaskVisitor implements AlkemyElementVisitor<BitMask>
+public class LongMaskVisitor<R> implements AlkemyElementVisitor<Long, BitMask>
 {
     @Override
     public BitMask map(AlkemyElement e)
@@ -159,12 +172,9 @@ public class LongMaskVisitor implements AlkemyElementVisitor<BitMask>
     }
 
     @Override
-    public void visitArgs(BitMask element, Object parent, Object... args)
+    public void visit(BitMask element, Object parent, Long parameter)
     {
-        Assertions.ofSize(args, 1);
-        Assertions.ofListedType(args[0], Long.class);
-        final Long l = (Long) (args[0]);
-        element.set(l >>> element.offset & (2 << element.bitCount - 1) -1, parent); 
+        element.set(parameter >>> element.offset & (2 << element.bitCount - 1) -1, parent); 
     }
 
     @Override
