@@ -18,7 +18,7 @@ package org.alkemy.common.csv;
 import org.alkemy.common.IndexedElementVisitor;
 import org.alkemy.common.util.TypedValueFromString;
 
-public class CsvReader extends IndexedElementVisitor
+public class CsvReader extends IndexedElementVisitor<String>
 {
     String[] line;
     final TypedValueFromString tvfs = new TypedValueFromString(f -> line[f]);
@@ -36,11 +36,11 @@ public class CsvReader extends IndexedElementVisitor
     }
     
     @Override
-    public void visit(IndexedElement e, Object parent, Object... args)
+    public void visit(IndexedElement e, Object parent, String parameter)
     {
         if (line == null)
         {
-            update((String) args[0]);
+            update(parameter);
         }
         e.set(tvfs.getValue(e), parent);
     }

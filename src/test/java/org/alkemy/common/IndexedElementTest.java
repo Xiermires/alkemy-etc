@@ -35,7 +35,7 @@ public class IndexedElementTest
     {
         final Properties m = new Properties();
         final TestClass tc = new TestClass();
-        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(new FunctionOnIndexed((a, b) -> m.put(a, b)),
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).acceptFluent(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
                 Alkemy.nodes().get(TestClass.class), tc);
 
         assertThat(m, hasEntry(0, 4));
@@ -52,19 +52,19 @@ public class IndexedElementTest
         
         final TestClass tc = new TestClass();
         final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
-        final FunctionOnIndexed aev = new FunctionOnIndexed((a, b) -> m.put(a, b));
+        final FunctionOnIndexed<TestClass> aev = new FunctionOnIndexed<>((a, b) -> m.put(a, b));
         final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 indexed elements: " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                anv.accept(aev, node, tc);
+                anv.acceptFluent(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
 
-    public class FunctionOnIndexed extends IndexedElementVisitor
+    public class FunctionOnIndexed<P> extends IndexedElementVisitor<P>
     {
         private BiFunction<Integer, Object, Object> f;
 
@@ -74,7 +74,7 @@ public class IndexedElementTest
         }
 
         @Override
-        public void visit(IndexedElement e, Object parent, Object... args)
+        public void visit(IndexedElement e, Object parent)
         {
             f.apply(e.getIndex(), e.get(parent));
         }

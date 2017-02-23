@@ -17,10 +17,9 @@ package org.alkemy.common.bitmask;
 
 import org.alkemy.common.bitmask.BitMask.Bits;
 import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
-import org.alkemy.util.Assertions;
 import org.alkemy.visitor.AlkemyElementVisitor;
 
-public class LongMaskVisitor implements AlkemyElementVisitor<BitMask>
+public class LongMaskVisitor<R> implements AlkemyElementVisitor<Long, BitMask>
 {
     @Override
     public BitMask map(AlkemyElement e)
@@ -29,12 +28,9 @@ public class LongMaskVisitor implements AlkemyElementVisitor<BitMask>
     }
 
     @Override
-    public void visit(BitMask element, Object parent, Object... args)
+    public void visit(BitMask element, Object parent, Long parameter)
     {
-        Assertions.ofSize(args, 1);
-        Assertions.ofListedType(args[0], Long.class);
-        final Long l = (Long) (args[0]);
-        element.set(l >>> element.offset & (2 << element.bitCount - 1) -1, parent); 
+        element.set(parameter >>> element.offset & (2 << element.bitCount - 1) -1, parent); 
     }
 
     @Override

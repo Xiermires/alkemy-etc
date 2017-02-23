@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.function.BiFunction;
 
 import org.alkemy.Alkemy;
+import org.alkemy.common.TaggedElementVisitor.FluentTaggedElementVisitor;
 import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.util.Measure;
 import org.alkemy.util.Node;
@@ -36,7 +37,7 @@ public class TaggedElementTest
     public void testStaticTags()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).accept(new FunctionOnTaggedSlow((a, b) -> props.put(a, b)), Alkemy
+        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)), Alkemy
                 .nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id0", 4));
@@ -50,8 +51,8 @@ public class TaggedElementTest
     public void testDynamicTags()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).accept(
-                new FunctionOnTaggedSlow((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
+        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(
+                new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
                 Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id10", 5));
@@ -62,7 +63,7 @@ public class TaggedElementTest
     public void testStaticTagsFast()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).accept(new FunctionOnTaggedSlow((a, b) -> props.put(a, b)), Alkemy
+        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)), Alkemy
                 .nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id0", 4));
@@ -76,8 +77,8 @@ public class TaggedElementTest
     public void testDynamicTagsFast()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).accept(
-                new FunctionOnTaggedFast((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
+        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(
+                new FunctionOnTaggedFast<>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
                 Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id10", 5));
@@ -90,14 +91,14 @@ public class TaggedElementTest
         final Properties props = new Properties();
         final TestClass tc = new TestClass();
         final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
-        final TaggedElementVisitor aev = new FunctionOnTaggedSlow((a, b) -> props.put(a, b)).dynamicVariables(dynParams());
+        final FluentTaggedElementVisitor<TestClass> aev = new FunctionOnTaggedSlow<TestClass>((a, b) -> props.put(a, b)).dynamicVariables(dynParams());
         final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 tagged elements (slow version): " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                anv.accept(aev, node, tc);
+                anv.acceptFluent(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
@@ -108,14 +109,15 @@ public class TaggedElementTest
         final Properties props = new Properties();
         final TestClass tc = new TestClass();
         final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
-        final TaggedElementVisitor aev = new FunctionOnTaggedFast((a, b) -> props.put(a, b)).dynamicVariables(dynParams());
+        final FluentTaggedElementVisitor<TestClass> aev = new FunctionOnTaggedFast<TestClass>((a, b) -> props.put(a, b))
+                .dynamicVariables(dynParams());
         final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 tagged elements (fast version): " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                anv.accept(aev, node, tc);
+                anv.acceptFluent(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
@@ -130,7 +132,7 @@ public class TaggedElementTest
         return dynParams;
     }
 
-    public class FunctionOnTaggedSlow extends TaggedElementVisitor
+    public class FunctionOnTaggedSlow<P> extends FluentTaggedElementVisitor<P>
     {
         private final BiFunction<String, Object, Object> f;
 
@@ -140,13 +142,13 @@ public class TaggedElementTest
         }
 
         @Override
-        public void visit(TaggedElement e, Object parent, Object... args)
+        public void visit(TaggedElement e, Object parent)
         {
             f.apply(e.isDynamic ? DynamicTag.replace(e.raw, dynamicVariables, p) : e.raw, e.get(parent));
         }
     }
 
-    public class FunctionOnTaggedFast extends TaggedElementVisitor
+    public class FunctionOnTaggedFast<R> extends FluentTaggedElementVisitor<R>
     {
         private final BiFunction<String, Object, Object> f;
 
@@ -156,7 +158,7 @@ public class TaggedElementTest
         }
 
         @Override
-        public void visit(TaggedElement e, Object parent, Object... args)
+        public void visit(TaggedElement e, Object parent)
         {
             f.apply(e.isDynamic ? DynamicTag.replaceFast(e.raw, dynamicVariables) : e.raw, e.get(parent));
         }

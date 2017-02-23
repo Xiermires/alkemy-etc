@@ -27,7 +27,7 @@ public class LongMaskVisitorTest
     @Test
     public void testMaskOneBit()
     {
-        final LongMaskVisitor lmv = new LongMaskVisitor();
+        final LongMaskVisitor<Long> lmv = new LongMaskVisitor<>();
         final AlkemyPreorderReader<TestClass, Long> apr = new AlkemyPreorderReader<>(true, true, false);
         final TestClass tc15 = apr.accept(lmv, Alkemy.nodes().get(TestClass.class), BitMask.bytesToLong(new byte[] { 15 }),
                 TestClass.class);
@@ -55,7 +55,7 @@ public class LongMaskVisitorTest
     @Test
     public void testMp3Frame()
     {
-        final LongMaskVisitor lmv = new LongMaskVisitor();
+        final LongMaskVisitor<Long> lmv = new LongMaskVisitor<>();
         final AlkemyPreorderReader<TestMp3Frame, Long> apr = new AlkemyPreorderReader<>(true, true, false);
         final TestMp3Frame frame = apr.accept(lmv, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }), TestMp3Frame.class);
 

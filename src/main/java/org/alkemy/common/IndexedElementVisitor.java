@@ -26,7 +26,7 @@ import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
 import org.alkemy.visitor.AlkemyElementVisitor;
 
-public abstract class IndexedElementVisitor implements AlkemyElementVisitor<IndexedElement>
+public abstract class IndexedElementVisitor<P> implements AlkemyElementVisitor<P, IndexedElement>
 {
     @Override
     public IndexedElement map(AlkemyElement e)
@@ -49,7 +49,7 @@ public abstract class IndexedElementVisitor implements AlkemyElementVisitor<Inde
             super(ae);
             index = ae.desc().getAnnotation(Index.class).value();
         }
-        
+
         public int getIndex()
         {
             return index;

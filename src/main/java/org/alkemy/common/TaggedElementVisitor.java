@@ -29,7 +29,7 @@ import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
 import org.alkemy.visitor.AlkemyElementVisitor;
 
-public abstract class TaggedElementVisitor implements AlkemyElementVisitor<TaggedElement>
+public abstract class TaggedElementVisitor<P> implements AlkemyElementVisitor<P, TaggedElement>
 {
     protected final Pattern p;
     protected Map<String, String> dynamicVariables = new HashMap<>();
@@ -44,7 +44,7 @@ public abstract class TaggedElementVisitor implements AlkemyElementVisitor<Tagge
         this.p = Pattern.compile(dynParamPattern);
     }
 
-    public TaggedElementVisitor dynamicVariables(Map<String, String> dynamicVariables)
+    public TaggedElementVisitor<P> dynamicVariables(Map<String, String> dynamicVariables)
     {
         this.dynamicVariables = dynamicVariables;
         return this;
@@ -54,17 +54,29 @@ public abstract class TaggedElementVisitor implements AlkemyElementVisitor<Tagge
     public TaggedElement map(AlkemyElement e)
     {
         final TaggedElement te = new TaggedElement(e);
-        if (te.isDynamic == null) 
+        if (te.isDynamic == null)
         {
             te.isDynamic = DynamicTag.isDynamic(te.raw, p);
         }
         return te;
     }
-    
+
     @Override
     public boolean accepts(Class<?> type)
     {
         return Tag.class == type;
+    }
+
+    // A fluent version of the TaggedElementVisitor
+    public static abstract class FluentTaggedElementVisitor<P> extends TaggedElementVisitor<P> implements
+            AlkemyElementVisitor<P, TaggedElement>
+    {
+        @Override
+        public FluentTaggedElementVisitor<P> dynamicVariables(Map<String, String> dynamicVariables)
+        {
+            this.dynamicVariables = dynamicVariables;
+            return this;
+        }
     }
 
     protected static class TaggedElement extends AbstractAlkemyElement<TaggedElement>
