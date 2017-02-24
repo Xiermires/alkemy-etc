@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.alkemy.common.bitmask;
 
+import static org.alkemy.visitor.impl.AbstractTraverser.INCLUDE_NULL_BRANCHES;
+import static org.alkemy.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -28,7 +30,7 @@ public class LongMaskVisitorTest
     public void testMaskOneBit()
     {
         final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
-        final AlkemyPreorderReader<TestClass, Long> anv = new AlkemyPreorderReader<>(true, true, false);
+        final AlkemyPreorderReader<TestClass, Long> anv = new AlkemyPreorderReader<>(INCLUDE_NULL_BRANCHES | INSTANTIATE_NODES);
         final TestClass tc15 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), BitMask.bytesToLong(new byte[] { 15 }));
 
         assertThat(tc15.a, is(1));
@@ -55,7 +57,7 @@ public class LongMaskVisitorTest
     public void testMp3Frame()
     {
         final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
-        final AlkemyPreorderReader<TestMp3Frame, Long> anv = new AlkemyPreorderReader<>(true, true, false);
+        final AlkemyPreorderReader<TestMp3Frame, Long> anv = new AlkemyPreorderReader<>(INCLUDE_NULL_BRANCHES | INSTANTIATE_NODES);
         final TestMp3Frame frame = anv.accept(aev, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }));
 
         assertThat(frame.framSync, is(2047));

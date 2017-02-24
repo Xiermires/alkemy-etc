@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.alkemy.common.csv;
 
+import static org.alkemy.visitor.impl.AbstractTraverser.INCLUDE_NULL_BRANCHES;
+import static org.alkemy.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -44,7 +46,7 @@ public class CsvReaderTest
         final BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
-        final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(true, true, false);
+        final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(INCLUDE_NULL_BRANCHES | INSTANTIATE_NODES);
         final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
         final CsvReader aev = new CsvReader();
 

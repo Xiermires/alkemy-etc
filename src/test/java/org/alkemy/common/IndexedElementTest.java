@@ -35,7 +35,7 @@ public class IndexedElementTest
     {
         final Properties m = new Properties();
         final TestClass tc = new TestClass();
-        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
+        new FluentAlkemyPreorderReader<TestClass>(0).accept(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
                 Alkemy.nodes().get(TestClass.class), tc);
 
         assertThat(m, hasEntry(0, 4));
@@ -51,7 +51,7 @@ public class IndexedElementTest
         final Properties m = new Properties();
         
         final TestClass tc = new TestClass();
-        final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
+        final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(0);
         final FunctionOnIndexed<TestClass> aev = new FunctionOnIndexed<>((a, b) -> m.put(a, b));
         final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
