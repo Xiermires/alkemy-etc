@@ -27,24 +27,23 @@ public class LongMaskVisitorTest
     @Test
     public void testMaskOneBit()
     {
-        final LongMaskVisitor<Long> lmv = new LongMaskVisitor<>();
-        final AlkemyPreorderReader<TestClass, Long> apr = new AlkemyPreorderReader<>(true, true, false);
-        final TestClass tc15 = apr.accept(lmv, Alkemy.nodes().get(TestClass.class), BitMask.bytesToLong(new byte[] { 15 }),
-                TestClass.class);
+        final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
+        final AlkemyPreorderReader<TestClass, Long> anv = new AlkemyPreorderReader<>(true, true, false);
+        final TestClass tc15 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), BitMask.bytesToLong(new byte[] { 15 }));
 
         assertThat(tc15.a, is(1));
         assertThat(tc15.b, is(1));
         assertThat(tc15.c, is(1));
         assertThat(tc15.d, is(1));
 
-        final TestClass tc8 = apr.accept(lmv, Alkemy.nodes().get(TestClass.class), 8l, TestClass.class);
+        final TestClass tc8 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), 8l);
 
         assertThat(tc8.a, is(1));
         assertThat(tc8.b, is(0));
         assertThat(tc8.c, is(0));
         assertThat(tc8.d, is(0));
 
-        final TestClass tc13 = apr.accept(lmv, Alkemy.nodes().get(TestClass.class), 13l, TestClass.class);
+        final TestClass tc13 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), 13l);
 
         assertThat(tc13.a, is(1));
         assertThat(tc13.b, is(1));
@@ -57,7 +56,7 @@ public class LongMaskVisitorTest
     {
         final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
         final AlkemyPreorderReader<TestMp3Frame, Long> anv = new AlkemyPreorderReader<>(true, true, false);
-        final TestMp3Frame frame = anv.accept(aev, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }), TestMp3Frame.class);
+        final TestMp3Frame frame = anv.accept(aev, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }));
 
         assertThat(frame.framSync, is(2047));
         assertThat(frame.version, is(3));

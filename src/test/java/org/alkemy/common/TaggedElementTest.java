@@ -27,7 +27,7 @@ import org.alkemy.Alkemy;
 import org.alkemy.common.TaggedElementVisitor.FluentTaggedElementVisitor;
 import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.util.Measure;
-import org.alkemy.util.Node;
+import org.alkemy.util.Nodes.TypifiedNode;
 import org.alkemy.visitor.impl.AlkemyPreorderReader.FluentAlkemyPreorderReader;
 import org.junit.Test;
 
@@ -37,8 +37,8 @@ public class TaggedElementTest
     public void testStaticTags()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)), Alkemy
-                .nodes().get(TestClass.class), new TestClass());
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)),
+                Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id0", 4));
         assertThat(props, hasEntry("id1", 3));
@@ -51,8 +51,8 @@ public class TaggedElementTest
     public void testDynamicTags()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(
-                new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(
+                new FunctionOnTaggedSlow<TestClass>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
                 Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id10", 5));
@@ -63,8 +63,8 @@ public class TaggedElementTest
     public void testStaticTagsFast()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)), Alkemy
-                .nodes().get(TestClass.class), new TestClass());
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)),
+                Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id0", 4));
         assertThat(props, hasEntry("id1", 3));
@@ -77,8 +77,8 @@ public class TaggedElementTest
     public void testDynamicTagsFast()
     {
         final Properties props = new Properties();
-        new FluentAlkemyPreorderReader<>(false, false, false).acceptFluent(
-                new FunctionOnTaggedFast<>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(
+                new FunctionOnTaggedFast<TestClass>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()),
                 Alkemy.nodes().get(TestClass.class), new TestClass());
 
         assertThat(props, hasEntry("id10", 5));
@@ -91,14 +91,15 @@ public class TaggedElementTest
         final Properties props = new Properties();
         final TestClass tc = new TestClass();
         final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
-        final FluentTaggedElementVisitor<TestClass> aev = new FunctionOnTaggedSlow<TestClass>((a, b) -> props.put(a, b)).dynamicVariables(dynParams());
-        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
+        final FluentTaggedElementVisitor<TestClass> aev = new FunctionOnTaggedSlow<TestClass>((a, b) -> props.put(a, b))
+                .dynamicVariables(dynParams());
+        final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 tagged elements (slow version): " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                anv.acceptFluent(aev, node, tc);
+                anv.accept(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
@@ -111,13 +112,13 @@ public class TaggedElementTest
         final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
         final FluentTaggedElementVisitor<TestClass> aev = new FunctionOnTaggedFast<TestClass>((a, b) -> props.put(a, b))
                 .dynamicVariables(dynParams());
-        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
-
+        final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
+        
         System.out.println("Handle 5e6 tagged elements (fast version): " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                anv.acceptFluent(aev, node, tc);
+                anv.accept(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }

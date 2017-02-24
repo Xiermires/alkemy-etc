@@ -22,26 +22,15 @@ public class CsvReader extends IndexedElementVisitor<String>
 {
     String[] line;
     final TypedValueFromString tvfs = new TypedValueFromString(f -> line[f]);
-    
+
     public void update(String line)
     {
-        if (line == null)
-        {
-            this.line = null;
-        }
-        else
-        {
-            this.line = line.split(",");
-        }
+        this.line = line.split(",");
     }
-    
+
     @Override
     public void visit(IndexedElement e, Object parent, String parameter)
     {
-        if (line == null)
-        {
-            update(parameter);
-        }
         e.set(tvfs.getValue(e), parent);
     }
 }

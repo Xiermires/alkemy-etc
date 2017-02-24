@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.alkemy.Alkemy;
 import org.alkemy.parse.impl.AbstractAlkemyElement;
-import org.alkemy.util.Node;
+import org.alkemy.util.Nodes.TypifiedNode;
 import org.alkemy.visitor.AlkemyNodeVisitor.Entry;
 import org.alkemy.visitor.impl.AlkemyPreorderReader;
 import org.junit.Test;
@@ -45,14 +45,20 @@ public class CsvReaderTest
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
         final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(true, true, false);
-        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
+        final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
         final CsvReader aev = new CsvReader();
-        
+
         final List<TestClass> tcs = new ArrayList<>();
-        for (Entry<TestClass, String> entry : anv.iterable(aev, node, reader.lines().iterator(), TestClass.class))
+        for (Entry<TestClass, String> entry : anv.peekIterable(aev, node, reader.lines().iterator()))
         {
-            tcs.add(entry.result());
-            aev.update(entry.peekNext());
+            if (entry.peekNext() != null)
+            {
+                aev.update(entry.peekNext());
+            }
+            if (entry.result() != null)
+            {
+                tcs.add(entry.result());
+            }
         }
 
         assertThat(tcs.size(), is(2));

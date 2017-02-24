@@ -24,7 +24,7 @@ import java.util.function.BiFunction;
 import org.alkemy.Alkemy;
 import org.alkemy.parse.impl.AbstractAlkemyElement;
 import org.alkemy.util.Measure;
-import org.alkemy.util.Node;
+import org.alkemy.util.Nodes.TypifiedNode;
 import org.alkemy.visitor.impl.AlkemyPreorderReader.FluentAlkemyPreorderReader;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class IndexedElementTest
     {
         final Properties m = new Properties();
         final TestClass tc = new TestClass();
-        new FluentAlkemyPreorderReader<TestClass>(false, false, false).acceptFluent(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
+        new FluentAlkemyPreorderReader<TestClass>(false, false, false).accept(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
                 Alkemy.nodes().get(TestClass.class), tc);
 
         assertThat(m, hasEntry(0, 4));
@@ -53,13 +53,13 @@ public class IndexedElementTest
         final TestClass tc = new TestClass();
         final FluentAlkemyPreorderReader<TestClass> anv = new FluentAlkemyPreorderReader<>(false, false, false);
         final FunctionOnIndexed<TestClass> aev = new FunctionOnIndexed<>((a, b) -> m.put(a, b));
-        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
+        final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
 
         System.out.println("Handle 5e6 indexed elements: " + Measure.measure(() ->
         {
             for (int i = 0; i < 1000000; i++)
             {
-                anv.acceptFluent(aev, node, tc);
+                anv.accept(aev, node, tc);
             }
         }) / 1000000 + " ms");
     }
