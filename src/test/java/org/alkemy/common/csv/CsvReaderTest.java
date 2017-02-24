@@ -60,7 +60,7 @@ public class CsvReaderTest
                 tcs.add(entry.result());
             }
         }
-
+        
         assertThat(tcs.size(), is(2));
 
         assertThat(tcs.get(0).a, is(0));
