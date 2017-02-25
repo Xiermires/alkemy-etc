@@ -15,13 +15,11 @@
  *******************************************************************************/
 package org.alkemy.common.bitmask;
 
-import static org.alkemy.visitor.impl.AbstractTraverser.INCLUDE_NULL_BRANCHES;
 import static org.alkemy.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.alkemy.Alkemy;
-import org.alkemy.visitor.impl.AlkemyPreorderReader;
 import org.alkemy.visitor.impl.SingleTypeReader;
 import org.junit.Test;
 
