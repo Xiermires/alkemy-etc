@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.alkemy.common.csv;
 
-import static org.alkemy.visitor.impl.AbstractTraverser.INCLUDE_NULL_BRANCHES;
 import static org.alkemy.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,10 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alkemy.Alkemy;
-import org.alkemy.parse.impl.AbstractAlkemyElement;
-import org.alkemy.util.Nodes.TypifiedNode;
 import org.alkemy.visitor.AlkemyNodeVisitor.Entry;
-import org.alkemy.visitor.impl.AlkemyPreorderReader;
 import org.junit.Test;
 
 public class CsvReaderTest
@@ -46,12 +42,11 @@ public class CsvReaderTest
         final BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
-        final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(INCLUDE_NULL_BRANCHES | INSTANTIATE_NODES);
-        final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
         final CsvReader aev = new CsvReader();
 
         final List<TestClass> tcs = new ArrayList<>();
-        for (Entry<TestClass, String> entry : anv.peekIterable(aev, node, reader.lines().iterator()))
+        for (Entry<TestClass, String> entry : Alkemy.reader(TestClass.class, String.class).preorder(INSTANTIATE_NODES)
+                .peekIterable(aev, reader.lines().iterator()))
         {
             if (entry.peekNext() != null)
             {
@@ -62,7 +57,7 @@ public class CsvReaderTest
                 tcs.add(entry.result());
             }
         }
-        
+
         assertThat(tcs.size(), is(2));
 
         assertThat(tcs.get(0).a, is(0));

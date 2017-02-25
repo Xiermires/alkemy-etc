@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 
 import org.alkemy.Alkemy;
 import org.alkemy.visitor.impl.AlkemyPreorderReader;
+import org.alkemy.visitor.impl.SingleTypeReader;
 import org.junit.Test;
 
 public class LongMaskVisitorTest
@@ -29,23 +30,24 @@ public class LongMaskVisitorTest
     @Test
     public void testMaskOneBit()
     {
+        final SingleTypeReader<TestClass, Long> anv = Alkemy.reader(TestClass.class, Long.class).preorder(INSTANTIATE_NODES);
         final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
-        final AlkemyPreorderReader<TestClass, Long> anv = new AlkemyPreorderReader<>(INCLUDE_NULL_BRANCHES | INSTANTIATE_NODES);
-        final TestClass tc15 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), BitMask.bytesToLong(new byte[] { 15 }));
+        
+        final TestClass tc15 = anv.accept(aev, BitMask.bytesToLong(new byte[] { 15 }));
 
         assertThat(tc15.a, is(1));
         assertThat(tc15.b, is(1));
         assertThat(tc15.c, is(1));
         assertThat(tc15.d, is(1));
 
-        final TestClass tc8 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), 8l);
+        final TestClass tc8 = anv.accept(aev, 8l);
 
         assertThat(tc8.a, is(1));
         assertThat(tc8.b, is(0));
         assertThat(tc8.c, is(0));
         assertThat(tc8.d, is(0));
 
-        final TestClass tc13 = anv.accept(aev, Alkemy.nodes().get(TestClass.class), 13l);
+        final TestClass tc13 = anv.accept(aev, 13l);
 
         assertThat(tc13.a, is(1));
         assertThat(tc13.b, is(1));
@@ -56,10 +58,9 @@ public class LongMaskVisitorTest
     @Test
     public void testMp3Frame()
     {
-        final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
-        final AlkemyPreorderReader<TestMp3Frame, Long> anv = new AlkemyPreorderReader<>(INCLUDE_NULL_BRANCHES | INSTANTIATE_NODES);
-        final TestMp3Frame frame = anv.accept(aev, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }));
-
+        final long header = BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 });
+        final TestMp3Frame frame = Alkemy.reader(TestMp3Frame.class, Long.class).preorder(INSTANTIATE_NODES).accept(new LongMaskVisitor<>(), header);
+        
         assertThat(frame.framSync, is(2047));
         assertThat(frame.version, is(3));
         assertThat(frame.layer, is(1));
