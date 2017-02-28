@@ -16,21 +16,15 @@
 package org.alkemy.common.csv;
 
 import org.alkemy.common.IndexedElementVisitor;
-import org.alkemy.common.util.TypedValueFromString;
+import org.alkemy.common.util.TypedValueFromStringArray;
 
-public class CsvReader extends IndexedElementVisitor<String>
+public class CsvReader extends IndexedElementVisitor<String[]>
 {
-    String[] line;
-    final TypedValueFromString tvfs = new TypedValueFromString(f -> line[f]);
-
-    public void update(String line)
-    {
-        this.line = line.split(",");
-    }
+    final TypedValueFromStringArray tvfs = new TypedValueFromStringArray();
 
     @Override
-    public void visit(IndexedElement e, Object parent, String parameter)
+    public void visit(IndexedElement e, Object parent, String[] parameter)
     {
-        e.set(tvfs.getValue(e), parent);
+        e.set(tvfs.getValue(e, parameter), parent);
     }
 }

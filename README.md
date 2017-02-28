@@ -42,9 +42,8 @@ public class TestClass
 A test class showing how-to object map csv lines.
 
 ```java
-
     private static final String NEW_LINE = System.getProperty("line.separator");
-    private static final String EXAMPLE = "0,1.0,2.0,12345678902,4" + NEW_LINE + "9,1.0,7f,12345678901,5";
+    private static final String EXAMPLE = "0,1.2,2.3,12345678902,4" + NEW_LINE + "9,1.65,7f,12345678901,5";
 
     @Test
     public void testCsvReader() throws IOException
@@ -53,16 +52,10 @@ A test class showing how-to object map csv lines.
         final BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
-        final AlkemyPreorderReader<TestClass, String> anv = new AlkemyPreorderReader<>(true, true, false);
-        final Node<? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
         final CsvReader aev = new CsvReader();
-        
-        final List<TestClass> tcs = new ArrayList<>();
-        for (Entry<TestClass, String> entry : anv.iterable(aev, node, reader.lines().iterator(), TestClass.class))
-        {
-            tcs.add(entry.result());
-            aev.update(entry.peekNext());
-        }
+
+        final List<TestClass> tcs = reader.lines().map(l -> l.split(",")).map(l -> Alkemy.mature(TestClass.class, aev, l))
+                .collect(Collectors.toList());
 
         assertThat(tcs.size(), is(2));
 
@@ -87,34 +80,17 @@ Here the visitor class.
 ```java
 public class CsvReader extends IndexedElementVisitor<String>
 {
-    String[] line;
-    final TypedValueFromString tvfs = new TypedValueFromString(f -> line[f]);
-    
-    public void update(String line)
-    {
-        if (line == null)
-        {
-            this.line = null;
-        }
-        else
-        {
-            this.line = line.split(",");
-        }
-    }
-    
+    final TypedValueFromStringArray tvfs = new TypedValueFromStringArray();
+
     @Override
-    public void visit(IndexedElement e, Object parent, String parameter)
+    public void visit(IndexedElement e, Object parent, String[] parameter)
     {
-        if (line == null)
-        {
-            update(parameter);
-        }
-        e.set(tvfs.getValue(e), parent);
+        e.set(tvfs.getValue(e, parameter), parent);
     }
 }
 ```
 
-2. BitMask: Silly bitmask class to map bitmask operations instead of writing the logic every time.
+2. BitMask: Silly bitmask class to map bitmask operations.
 
 The test class :
 
@@ -147,9 +123,8 @@ The test using it. A mp3 frame header parser :
     @Test
     public void testMp3Frame()
     {
-        final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
-        final AlkemyPreorderReader<TestMp3Frame, Long> anv = new AlkemyPreorderReader<>(true, true, false);
-        final TestMp3Frame frame = anv.accept(aev, Alkemy.nodes().get(TestMp3Frame.class), BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 }), TestMp3Frame.class);
+        final long header = BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 });
+        final TestMp3Frame frame = Alkemy.mature(TestMp3Frame.class, new LongMaskVisitor<>(), header);
 
         assertThat(frame.framSync, is(2047));
         assertThat(frame.version, is(3));
@@ -160,7 +135,7 @@ The test using it. A mp3 frame header parser :
     }
 ```
 
-Finally the visitor class and the bitwise logic :
+Finally the visitor class :
 
 ```java
 public class LongMaskVisitor<R> implements AlkemyElementVisitor<Long, BitMask>
@@ -181,77 +156,6 @@ public class LongMaskVisitor<R> implements AlkemyElementVisitor<Long, BitMask>
     public boolean accepts(Class<?> type)
     {
         return Bits.class == type;
-    }
-}
-
-public class BitMask extends AbstractAlkemyElement<BitMask>
-{
-    private static long[] lmask = new long[] { 0xFF00000000000000l, //
-            0x00FF000000000000l, //
-            0x0000FF0000000000l, //
-            0x000000FF00000000l, //
-            0x00000000FF000000l, //
-            0x0000000000FF0000l, //
-            0x000000000000FF00l, //
-            0x00000000000000FFl };
-
-    static long asLong(Object arg)
-    {
-        Assertions.ofListedType(arg, byte[].class, Integer.class, Long.class);
-
-        if (arg instanceof byte[])
-        {
-            final byte[] bb = (byte[]) arg;
-            Assertions.lessEqualThan(bb.length, Long.BYTES);
-            return shifAndMask(bb);
-        }
-        else if (arg instanceof Integer)
-        {
-            return ((Number) arg).longValue();
-        }
-        else if (arg instanceof Long)
-        {
-            return (Long) arg;
-        }
-        throw new RuntimeException("Invalid type"); // should never happen
-    }
-
-    private static long shifAndMask(byte[] bytes)
-    {
-        long l = 0;
-        for (int i = bytes.length; i > 0; i--)
-        {
-            final int shift = 8 * (i - 1);
-            final long mask = lmask[8 - i];
-            l = l | ((bytes[bytes.length - i] << shift) & mask);
-        }
-        return l;
-    }
-
-    final int offset;
-    final int bitCount;
-
-    protected BitMask(AbstractAlkemyElement<?> other)
-    {
-        super(other);
-
-        final Bits bit = other.desc().getAnnotation(Bits.class);
-        Assertions.exists(bit);
-        Assertions.greaterEqualThan(bit.pos(), 0);
-        Assertions.greaterEqualThan(bit.bitCount(), 0);
-
-        offset = bit.pos();
-        bitCount = bit.bitCount();
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD })
-    @AlkemyLeaf(Bits.class)
-    public @interface Bits
-    {
-        int shift(); 
-
-        int bitCount() default 1;
     }
 }
 ```

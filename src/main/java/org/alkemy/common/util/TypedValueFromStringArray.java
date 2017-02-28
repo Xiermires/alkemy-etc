@@ -15,73 +15,64 @@
  *******************************************************************************/
 package org.alkemy.common.util;
 
-import java.util.function.Function;
-
 import org.alkemy.common.IndexedElementVisitor.IndexedElement;
 import org.alkemy.util.AbstractAlkemyValueProvider;
 import org.alkemy.util.Assertions;
 
-public class TypedValueFromString extends AbstractAlkemyValueProvider<IndexedElement>
+public class TypedValueFromStringArray extends AbstractAlkemyValueProvider<IndexedElement, String[]>
 {
-    private Function<Integer, String> provider;
-
-    public TypedValueFromString(Function<Integer, String> provider)
+    @Override
+    public Double getDouble(IndexedElement e, String[] p)
     {
-        this.provider = provider;
+        return Double.parseDouble(p[e.getIndex()]);
     }
 
     @Override
-    public Double getDouble(IndexedElement e)
+    public Float getFloat(IndexedElement e, String[] p)
     {
-        return Double.parseDouble(provider.apply(e.getIndex()));
+        return Float.parseFloat(p[e.getIndex()]);
     }
 
     @Override
-    public Float getFloat(IndexedElement e)
+    public Long getLong(IndexedElement e, String[] p)
     {
-        return Float.parseFloat(provider.apply(e.getIndex()));
+        return Long.parseLong(p[e.getIndex()]);
     }
 
     @Override
-    public Long getLong(IndexedElement e)
+    public Integer getInteger(IndexedElement e, String[] p)
     {
-        return Long.parseLong(provider.apply(e.getIndex()));
+        return Integer.parseInt(p[e.getIndex()]);
     }
 
     @Override
-    public Integer getInteger(IndexedElement e)
+    public Short getShort(IndexedElement e, String[] p)
     {
-        return Integer.parseInt(provider.apply(e.getIndex()));
+        return Short.parseShort(p[e.getIndex()]);
     }
 
     @Override
-    public Short getShort(IndexedElement e)
+    public Byte getByte(IndexedElement e, String[] p)
     {
-        return Short.parseShort(provider.apply(e.getIndex()));
+        return Byte.parseByte(p[e.getIndex()]);
     }
 
     @Override
-    public Byte getByte(IndexedElement e)
+    public Character getChar(IndexedElement e, String[] p)
     {
-        return Byte.parseByte(provider.apply(e.getIndex()));
-    }
-
-    @Override
-    public Character getChar(IndexedElement e)
-    {
-        final String s = provider.apply(e.getIndex());
+        final String s = p[e.getIndex()];
         Assertions.isTrue(s.length() == 1, "The string '%s' can't be converted to char.", s);
         return Character.valueOf(s.charAt(0));
     }
 
     @Override
-    public Boolean getBoolean(IndexedElement e)
+    public Boolean getBoolean(IndexedElement e, String[] p)
     {
-        return Boolean.valueOf(provider.apply(e.getIndex()));
+        return Boolean.valueOf(p[e.getIndex()]);
     }
 
     @Override
-    public Object getObject(IndexedElement e)
+    public Object getObject(IndexedElement e, String[] p)
     {
         throw new UnsupportedOperationException("not implemented.");
     }

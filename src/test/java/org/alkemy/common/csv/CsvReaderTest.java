@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.alkemy.common.csv;
 
-import static org.alkemy.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -23,11 +22,10 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.alkemy.Alkemy;
-import org.alkemy.visitor.AlkemyNodeVisitor.Entry;
 import org.junit.Test;
 
 public class CsvReaderTest
@@ -44,19 +42,8 @@ public class CsvReaderTest
 
         final CsvReader aev = new CsvReader();
 
-        final List<TestClass> tcs = new ArrayList<>();
-        for (Entry<TestClass, String> entry : Alkemy.reader(TestClass.class, String.class).preorder(INSTANTIATE_NODES)
-                .peekIterable(aev, reader.lines().iterator()))
-        {
-            if (entry.peekNext() != null)
-            {
-                aev.update(entry.peekNext());
-            }
-            if (entry.result() != null)
-            {
-                tcs.add(entry.result());
-            }
-        }
+        final List<TestClass> tcs = reader.lines().map(l -> l.split(",")).map(l -> Alkemy.mature(TestClass.class, aev, l))
+                .collect(Collectors.toList());
 
         assertThat(tcs.size(), is(2));
 
