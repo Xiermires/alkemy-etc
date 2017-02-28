@@ -26,12 +26,14 @@ import org.junit.runner.RunWith;
 testClassNames = { "org.alkemy.common.IndexedElementTest", //
         "org.alkemy.common.TaggedElementTest", //
         "org.alkemy.common.bitmask.LongMaskVisitorTest", //
-        "org.alkemy.common.csv.CsvReaderTest"
+        "org.alkemy.common.csv.CsvReaderTest", //
+        "org.alkemy.common.setting.SettingHandlerTest"
 }, //
 instrs = @Instr(classNames = { "org.alkemy.common.TestClass", //
         "org.alkemy.common.bitmask.TestClass", //
         "org.alkemy.common.bitmask.TestMp3Frame", //
-        "org.alkemy.common.csv.TestClass"
+        "org.alkemy.common.csv.TestClass", //
+        "org.alkemy.common.setting.TestClass"
 }, ctf = AlkemizerCTF.class))
 public class AlkemyInstrTestSuite
 {

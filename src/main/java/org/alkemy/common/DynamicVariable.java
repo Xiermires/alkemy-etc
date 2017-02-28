@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
 
 import org.alkemy.util.Assertions;
 
-public class DynamicTag
+public class DynamicVariable
 {
-    private DynamicTag()
+    private DynamicVariable()
     {
     }
 
@@ -85,9 +85,9 @@ public class DynamicTag
             i = raw.indexOf("{&", j++);
         }
 
-        if (j + 1 < raw.length())
+        if (j < raw.length())
         {
-            sb.append(raw.substring(j + 1));
+            sb.append(raw.substring(j));
         }
         return sb.toString();
     }

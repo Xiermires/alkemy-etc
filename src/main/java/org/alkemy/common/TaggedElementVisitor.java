@@ -56,7 +56,7 @@ public abstract class TaggedElementVisitor<P> implements AlkemyElementVisitor<P,
         final TaggedElement te = new TaggedElement(e);
         if (te.isDynamic == null)
         {
-            te.isDynamic = DynamicTag.isDynamic(te.raw, p);
+            te.isDynamic = DynamicVariable.isDynamic(te.raw, p);
         }
         return te;
     }
