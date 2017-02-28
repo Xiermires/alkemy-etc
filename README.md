@@ -15,77 +15,214 @@ Examples
 
 A couple of examples.
 
-1. CsvReader: One approach to code a Csv read mapper.
+1. SettingStore: One approach to code a setting store.
 
 The test class :
 
 ```java
 public class TestClass
 {
-    @Index(0)
-    int a;
+    @Setting("{&os}.{&app}.foo")
+    int foo;
     
-    @Index(1)
-    double b;
+    @Setting("{&os}.bar")
+    int bar;
     
-    @Index(2)
-    float c;
-    
-    @Index(3)
-    long d;
-    
-    @Index(4)
-    int e;
+    @Setting("lorem.ipsum.dolor")
+    int lorem;
 }
 ```
 
-A test class showing how-to object map csv lines.
+Test case showing the usage.
 
 ```java
-    private static final String NEW_LINE = System.getProperty("line.separator");
-    private static final String EXAMPLE = "0,1.2,2.3,12345678902,4" + NEW_LINE + "9,1.65,7f,12345678901,5";
-
     @Test
-    public void testCsvReader() throws IOException
+    public void testSettingHandler()
     {
-        // Simulate the whole csv is a file process (although we only need an Iterator<String>)
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(
-                new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
+        final Properties props = new Properties();
 
-        final CsvReader aev = new CsvReader();
+        // Setting keys - values
+        props.put("win.zip.foo", 1);
+        props.put("lnx.zip.foo", 2);
+        props.put("win.bar", 1);
+        props.put("lnx.bar", 2);
+        props.put("lorem.ipsum.dolor", 3);
 
-        final List<TestClass> tcs = reader.lines().map(l -> l.split(",")).map(l -> Alkemy.mature(TestClass.class, aev, l))
-                .collect(Collectors.toList());
+        // Load win settings.
+        final TestClass tcw = SettingHandler.load(new TestClass(), ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
+                props));
+        assertThat(tcw.bar, is(1));
+        assertThat(tcw.foo, is(1));
+        assertThat(tcw.lorem, is(3));
 
-        assertThat(tcs.size(), is(2));
+        // Load lnx settings.
+        final TestClass tcl = SettingHandler.load(new TestClass(), ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
+                props));
+        assertThat(tcl.bar, is(2));
+        assertThat(tcl.foo, is(2));
+        assertThat(tcl.lorem, is(3));
+        
+        tcw.foo = 4; 
+        tcw.bar = 5;
+        tcw.lorem = 6;
+        
+        // Persist win settings
+        SettingHandler.persist(tcw, ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
+                props));
+        
+        assertThat(props.get("win.zip.foo"), is(4));
+        assertThat(props.get("win.bar"), is(5));
+        assertThat(props.get("lorem.ipsum.dolor"), is(6));
+        
+        tcl.foo = 7;
+        tcl.bar = 8;
+        tcl.lorem = 9;
+        
+        // Persist lnx settings
+        SettingHandler.persist(tcl, ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
+                props));
+        
+        assertThat(props.get("lnx.zip.foo"), is(7));
+        assertThat(props.get("lnx.bar"), is(8));
+        assertThat(props.get("lorem.ipsum.dolor"), is(9));
+    }
+	
+	// Simple provider impl.
+	static class IntProvider implements Provider
+    {
+        final Properties props;
 
-        assertThat(tcs.get(0).a, is(0));
-        assertThat(tcs.get(0).b, is(1.2d));
-        assertThat(tcs.get(0).c, is(2.3f));
-        assertThat(tcs.get(0).d, is(12345678902l));
-        assertThat(tcs.get(0).e, is(4));
+        IntProvider(Properties props)
+        {
+            this.props = props;
+        }
 
-        assertThat(tcs.get(1).a, is(9));
-        assertThat(tcs.get(1).b, is(1.65d));
-        assertThat(tcs.get(1).c, is(7f));
-        assertThat(tcs.get(1).d, is(12345678901l));
-        assertThat(tcs.get(1).e, is(5));
+        @Override
+        public Object getValue(String key, Class<?> type)
+        {
+            return props.get(key);
+        }
 
-        reader.close();
+        @Override
+        public Object setValue(String key, Object value)
+        {
+            return props.put(key, value);
+        }
     }
 ```
 
-Here the visitor class.
+Here the SettingHandler class which contains element visitor, AlkemyLeaf and AlkemyElement.
 
 ```java
-public class CsvReader extends IndexedElementVisitor<String>
+public class SettingHandler
 {
-    final TypedValueFromStringArray tvfs = new TypedValueFromStringArray();
-
-    @Override
-    public void visit(IndexedElement e, Object parent, String[] parameter)
+    public static <R> R load(R r, Provider provider)
     {
-        e.set(tvfs.getValue(e, parameter), parent);
+        return Alkemy.mature(r, new SettingLoader(provider));
+    }
+
+    public static <R> R load(R r, Map<String, String> variables, Provider provider)
+    {
+        return Alkemy.mature(r, variables, new SettingLoader(provider));   
+    }
+
+    public static <R> R persist(R r, Provider provider)
+    {
+        return Alkemy.mature(r, new SettingPersister(provider));
+    }
+
+    public static <R> R persist(R r, Map<String, String> variables, Provider provider)
+    {
+        return Alkemy.mature(r, variables, new SettingPersister(provider));
+    }
+
+    static abstract class AbstractSetting implements AlkemyElementVisitor<Map<String, String>, SettingElement>
+    {
+        protected final Provider provider;
+
+        protected AbstractSetting(Provider provider)
+        {
+            this.provider = provider;
+        }
+
+        @Override
+        public SettingElement map(AlkemyElement e)
+        {
+            return new SettingElement(e);
+        }
+
+        @Override
+        public boolean accepts(Class<?> type)
+        {
+            return Setting.class == type;
+        }
+    }
+
+    static class SettingPersister extends AbstractSetting
+    {
+        SettingPersister(Provider provider)
+        {
+            super(provider);
+        }
+
+        @Override
+        public void visit(SettingElement e, Object parent)
+        {
+            provider.setValue(e.key, e.get(parent));
+        }
+
+        @Override
+        public void visit(SettingElement e, Object parent, Map<String, String> variables)
+        {
+            provider.setValue(DynamicVariable.replaceFast(e.key, variables), e.get(parent));
+        }
+    }
+
+    static class SettingLoader extends AbstractSetting
+    {
+        SettingLoader(Provider provider)
+        {
+            super(provider);
+        }
+
+        @Override
+        public void visit(SettingElement e, Object parent)
+        {
+            e.set(provider.getValue(e.key, e.type()), parent);
+        }
+
+        @Override
+        public void visit(SettingElement e, Object parent, Map<String, String> variables)
+        {
+            e.set(provider.getValue(DynamicVariable.replaceFast(e.key, variables), e.type()), parent);
+        }
+    }
+
+    public static class SettingElement extends AbstractAlkemyElement<SettingElement>
+    {
+        private final static Pattern p = Pattern.compile("\\{&(.+?)\\}");
+
+        final String key;
+        final boolean dynamic;
+
+        protected SettingElement(AbstractAlkemyElement<?> other)
+        {
+            super(other);
+
+            final Setting setting = other.desc().getAnnotation(Setting.class);
+            Assertions.nonNull(setting); // shouldn't have been accepted.
+
+            key = setting.value();
+            dynamic = DynamicVariable.isDynamic(key, p);
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD })
+    @AlkemyLeaf
+    public static @interface Setting
+    {
+        String value();
     }
 }
 ```
