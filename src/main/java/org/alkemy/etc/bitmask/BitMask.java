@@ -13,7 +13,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common.bitmask;
+package org.alkemy.etc.bitmask;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,10 +21,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.parse.impl.AbstractAlkemyElement;
+import org.alkemy.common.parse.impl.VisitableAlkemyElement;
 import org.alkemy.util.Assertions;
 
-public class BitMask extends AbstractAlkemyElement<BitMask>
+public class BitMask extends VisitableAlkemyElement
 {
     private static long[] lmask = new long[] { 0xFF00000000000000l, //
             0x00FF000000000000l, //
@@ -71,7 +71,7 @@ public class BitMask extends AbstractAlkemyElement<BitMask>
     final int offset;
     final int bitCount;
 
-    protected BitMask(AbstractAlkemyElement<?> other)
+    protected BitMask(VisitableAlkemyElement other)
     {
         super(other);
 

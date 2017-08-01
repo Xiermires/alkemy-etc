@@ -1,4 +1,4 @@
-package org.alkemy.common.setting;
+package org.alkemy.etc.setting;
 
 public interface Provider
 {

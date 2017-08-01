@@ -13,28 +13,46 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.etc;
 
-import org.alkemy.InstrumentClassWithLambdas;
-import org.alkemy.InstrumentClassWithLambdas.Instr;
-import org.alkemy.InstrumentClassWithLambdas.InstrumentableLambdaClasses;
-import org.alkemy.parse.impl.AlkemizerCTF;
-import org.junit.runner.RunWith;
+import org.alkemy.etc.IndexedElementVisitor.Index;
+import org.alkemy.etc.TaggedElementVisitor.Tag;
 
-@RunWith(InstrumentClassWithLambdas.class)
-@InstrumentableLambdaClasses(//
-testClassNames = { "org.alkemy.common.IndexedElementTest", //
-        "org.alkemy.common.TaggedElementTest", //
-        "org.alkemy.common.bitmask.LongMaskVisitorTest", //
-        "org.alkemy.common.csv.CsvReaderTest", //
-        "org.alkemy.common.setting.SettingHandlerTest"
-}, //
-instrs = @Instr(classNames = { "org.alkemy.common.TestClass", //
-        "org.alkemy.common.bitmask.TestClass", //
-        "org.alkemy.common.bitmask.TestMp3Frame", //
-        "org.alkemy.common.csv.TestClass", //
-        "org.alkemy.common.setting.TestClass"
-}, ctf = AlkemizerCTF.class))
-public class AlkemyInstrTestSuite
+public class TestClass
 {
+    @Index(0)
+    int i0 = 4;
+
+    @Index(1)
+    int i1 = 3;
+
+    @Index(2)
+    int i2 = 2;
+
+    @Index(3)
+    int i3 = 1;
+
+    @Index(4)
+    int i4 = 0;
+
+    @Tag("id0")
+    int i5 = 4;
+
+    @Tag("id1")
+    int i6 = 3;
+
+    @Tag("id2")
+    int i7 = 2;
+
+    @Tag("id3")
+    int i8 = 1;
+
+    @Tag("id4")
+    int i9 = 0;
+
+    @Tag("{&dyn1}")
+    int i10 = 5;
+
+    @Tag("{&prefix}.bbb.{&infix}.ddd.{&suffix}")
+    int i11 = 6;
 }

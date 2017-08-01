@@ -13,8 +13,9 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common.csv;
+package org.alkemy.etc.csv;
 
+import static org.alkemy.common.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -25,7 +26,9 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alkemy.Alkemy;
+import org.alkemy.common.Alkemy;
+import org.alkemy.common.Alkemy.SingleTypeReader;
+import org.alkemy.common.csv.CsvReader;
 import org.junit.Test;
 
 public class CsvReaderTest
@@ -37,13 +40,15 @@ public class CsvReaderTest
     public void testCsvReader() throws IOException
     {
         // Simulate the whole csv is a file process (although we only need an Iterator<String>)
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(
+        final BufferedReader buffer = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
         final CsvReader aev = new CsvReader();
+        final SingleTypeReader<TestClass, String[]> reader = Alkemy.reader(TestClass.class, String[].class)//
+                .preorder(INSTANTIATE_NODES);
 
-        final List<TestClass> tcs = reader.lines().map(l -> l.split(",")).map(l -> Alkemy.mature(TestClass.class, aev, l))
-                .collect(Collectors.toList());
+        final List<TestClass> tcs = buffer.lines().map(l -> l.split(",")).map(l -> reader.create(aev, l)).collect(
+                Collectors.toList());
 
         assertThat(tcs.size(), is(2));
 
@@ -59,6 +64,6 @@ public class CsvReaderTest
         assertThat(tcs.get(1).d, is(12345678901l));
         assertThat(tcs.get(1).e, is(5));
 
-        reader.close();
+        buffer.close();
     }
 }

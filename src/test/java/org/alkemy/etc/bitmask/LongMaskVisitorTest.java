@@ -13,12 +13,14 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common.bitmask;
+package org.alkemy.etc.bitmask;
 
+import static org.alkemy.common.visitor.impl.AbstractTraverser.INSTANTIATE_NODES;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.alkemy.Alkemy;
+import org.alkemy.common.Alkemy;
+import org.alkemy.common.Alkemy.SingleTypeReader;
 import org.junit.Test;
 
 public class LongMaskVisitorTest
@@ -26,22 +28,24 @@ public class LongMaskVisitorTest
     @Test
     public void testMaskOneBit()
     {
-        final LongMaskVisitor<Long> aev = new LongMaskVisitor<>();
-        final TestClass tc15 = Alkemy.mature(TestClass.class, aev, BitMask.bytesToLong(new byte[] { 15 }));
+        final LongMaskVisitor aev = new LongMaskVisitor();
+        final SingleTypeReader<TestClass, Long> reader = Alkemy.reader(TestClass.class, Long.class).preorder(INSTANTIATE_NODES);
+
+        final TestClass tc15 = reader.create(aev, BitMask.bytesToLong(new byte[] { 15 }));
 
         assertThat(tc15.a, is(1));
         assertThat(tc15.b, is(1));
         assertThat(tc15.c, is(1));
         assertThat(tc15.d, is(1));
 
-        final TestClass tc8 = Alkemy.mature(TestClass.class, aev, 8l);
+        final TestClass tc8 = reader.create(aev, 8l);
 
         assertThat(tc8.a, is(1));
         assertThat(tc8.b, is(0));
         assertThat(tc8.c, is(0));
         assertThat(tc8.d, is(0));
 
-        final TestClass tc13 = Alkemy.mature(TestClass.class, aev, 13l);
+        final TestClass tc13 = reader.create(aev, 13l);
 
         assertThat(tc13.a, is(1));
         assertThat(tc13.b, is(1));
@@ -52,8 +56,9 @@ public class LongMaskVisitorTest
     @Test
     public void testMp3Frame()
     {
-        final long header = BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 });
-        final TestMp3Frame frame = Alkemy.mature(TestMp3Frame.class, new LongMaskVisitor<>(), header);
+        final Long header = BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 });
+        final TestMp3Frame frame = Alkemy.reader(TestMp3Frame.class, Long.class)//
+                .preorder(INSTANTIATE_NODES).create(new LongMaskVisitor(), header);
 
         assertThat(frame.framSync, is(2047));
         assertThat(frame.version, is(3));

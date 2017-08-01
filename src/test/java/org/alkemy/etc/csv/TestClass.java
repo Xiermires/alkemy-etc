@@ -13,27 +13,24 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common.bitmask;
+package org.alkemy.etc.csv;
 
-import org.alkemy.common.bitmask.BitMask.Bits;
+import org.alkemy.etc.IndexedElementVisitor.Index;
 
-public class TestMp3Frame
+public class TestClass
 {
-    @Bits(shift = 21, bitCount = 11)
-    int framSync;
+    @Index(0)
+    int a;
     
-    @Bits(shift = 19, bitCount = 2)
-    int version;
+    @Index(1)
+    double b;
     
-    @Bits(shift = 17, bitCount = 2)
-    int layer;
+    @Index(2)
+    float c;
     
-    @Bits(shift = 12, bitCount = 4)
-    int bitrate;
+    @Index(3)
+    long d;
     
-    @Bits(shift = 10, bitCount = 2)
-    int samplerate;
-    
-    @Bits(shift = 9)
-    int padding;
+    @Index(4)
+    int e;
 }

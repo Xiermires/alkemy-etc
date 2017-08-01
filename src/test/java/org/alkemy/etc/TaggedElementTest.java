@@ -13,7 +13,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.etc;
 
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.alkemy.Alkemy;
+import org.alkemy.common.Alkemy;
+import org.alkemy.common.Alkemy.SingleTypeReader;
+import org.alkemy.etc.DynamicVariable;
+import org.alkemy.etc.TaggedElementVisitor;
 import org.alkemy.util.Measure;
-import org.alkemy.visitor.impl.SingleTypeReader;
 import org.junit.Test;
 
 public class TaggedElementTest

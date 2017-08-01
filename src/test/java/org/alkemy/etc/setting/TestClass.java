@@ -1,6 +1,6 @@
-package org.alkemy.common.setting;
+package org.alkemy.etc.setting;
 
-import org.alkemy.common.setting.SettingHandler.Setting;
+import org.alkemy.etc.setting.SettingManager.Setting;
 
 public class TestClass
 {

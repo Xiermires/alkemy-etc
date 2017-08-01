@@ -13,7 +13,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.etc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,10 +24,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.common.TaggedElementVisitor.TaggedElement;
-import org.alkemy.parse.impl.AbstractAlkemyElement;
-import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
-import org.alkemy.visitor.AlkemyElementVisitor;
+import org.alkemy.common.parse.impl.VisitableAlkemyElement;
+import org.alkemy.common.visitor.AlkemyElementVisitor;
+import org.alkemy.etc.TaggedElementVisitor.TaggedElement;
 
 public abstract class TaggedElementVisitor<P> implements AlkemyElementVisitor<P, TaggedElement>
 {
@@ -51,7 +50,7 @@ public abstract class TaggedElementVisitor<P> implements AlkemyElementVisitor<P,
     }
 
     @Override
-    public TaggedElement map(AlkemyElement e)
+    public TaggedElement map(VisitableAlkemyElement e)
     {
         final TaggedElement te = new TaggedElement(e);
         if (te.isDynamic == null)
@@ -79,12 +78,12 @@ public abstract class TaggedElementVisitor<P> implements AlkemyElementVisitor<P,
         }
     }
 
-    protected static class TaggedElement extends AbstractAlkemyElement<TaggedElement>
+    protected static class TaggedElement extends VisitableAlkemyElement
     {
         public final String raw;
         public Boolean isDynamic = null;
 
-        protected TaggedElement(AbstractAlkemyElement<?> ae)
+        protected TaggedElement(VisitableAlkemyElement ae)
         {
             super(ae);
             raw = ae.desc().getAnnotation(Tag.class).value();

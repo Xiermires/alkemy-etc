@@ -13,7 +13,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.etc;
 
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
@@ -21,11 +21,11 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.alkemy.Alkemy;
-import org.alkemy.parse.impl.AbstractAlkemyElement;
+import org.alkemy.common.Alkemy;
+import org.alkemy.common.parse.impl.VisitableAlkemyElement;
+import org.alkemy.common.visitor.impl.AlkemyPreorderReader;
 import org.alkemy.util.Measure;
-import org.alkemy.util.Nodes.TypifiedNode;
-import org.alkemy.visitor.impl.AlkemyPreorderReader;
+import org.alkemy.util.Nodes.RootNode;
 import org.junit.Test;
 
 public class IndexedElementTest
@@ -36,7 +36,7 @@ public class IndexedElementTest
         final Properties m = new Properties();
         final TestClass tc = new TestClass();
         new AlkemyPreorderReader<TestClass, Object>(0).accept(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
-                Alkemy.nodes().get(TestClass.class), tc);
+                Alkemy.rootNode(TestClass.class), tc);
 
         assertThat(m, hasEntry(0, 4));
         assertThat(m, hasEntry(1, 3));
@@ -53,7 +53,7 @@ public class IndexedElementTest
         final TestClass tc = new TestClass();
         final AlkemyPreorderReader<TestClass, Object> anv = new AlkemyPreorderReader<>(0);
         final FunctionOnIndexed<TestClass> aev = new FunctionOnIndexed<>((a, b) -> m.put(a, b));
-        final TypifiedNode<TestClass, ? extends AbstractAlkemyElement<?>> node = Alkemy.nodes().get(TestClass.class);
+        final RootNode<TestClass, ? extends VisitableAlkemyElement> node = Alkemy.rootNode(TestClass.class);
 
         System.out.println("Handle 5e6 indexed elements: " + Measure.measure(() ->
         {

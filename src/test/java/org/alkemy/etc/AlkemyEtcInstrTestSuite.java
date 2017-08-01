@@ -13,24 +13,28 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common.csv;
+package org.alkemy.etc;
 
-import org.alkemy.common.IndexedElementVisitor.Index;
+import org.alkemy.InstrumentClassWithLambdas;
+import org.alkemy.InstrumentClassWithLambdas.Instr;
+import org.alkemy.InstrumentClassWithLambdas.InstrumentableLambdaClasses;
+import org.alkemy.parse.impl.AlkemizerCTF;
+import org.junit.runner.RunWith;
 
-public class TestClass
+@RunWith(InstrumentClassWithLambdas.class)
+@InstrumentableLambdaClasses(//
+testClassNames = { "org.alkemy.etc.IndexedElementTest", //
+        "org.alkemy.etc.TaggedElementTest", //
+        "org.alkemy.etc.bitmask.LongMaskVisitorTest", //
+        "org.alkemy.etc.csv.CsvReaderTest", //
+        "org.alkemy.etc.setting.SettingHandlerTest"
+}, //
+instrs = @Instr(classNames = { "org.alkemy.etc.TestClass", //
+        "org.alkemy.etc.bitmask.TestClass", //
+        "org.alkemy.etc.bitmask.TestMp3Frame", //
+        "org.alkemy.etc.csv.TestClass", //
+        "org.alkemy.etc.setting.TestClass"
+}, ctf = AlkemizerCTF.class))
+public class AlkemyEtcInstrTestSuite
 {
-    @Index(0)
-    int a;
-    
-    @Index(1)
-    double b;
-    
-    @Index(2)
-    float c;
-    
-    @Index(3)
-    long d;
-    
-    @Index(4)
-    int e;
 }

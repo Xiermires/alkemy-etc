@@ -13,7 +13,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.etc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,15 +21,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.common.IndexedElementVisitor.IndexedElement;
-import org.alkemy.parse.impl.AbstractAlkemyElement;
-import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
-import org.alkemy.visitor.AlkemyElementVisitor;
+import org.alkemy.common.parse.impl.VisitableAlkemyElement;
+import org.alkemy.common.visitor.AlkemyElementVisitor;
+import org.alkemy.etc.IndexedElementVisitor.IndexedElement;
 
 public abstract class IndexedElementVisitor<P> implements AlkemyElementVisitor<P, IndexedElement>
 {
     @Override
-    public IndexedElement map(AlkemyElement e)
+    public IndexedElement map(VisitableAlkemyElement e)
     {
         return new IndexedElement(e);
     }
@@ -40,11 +39,11 @@ public abstract class IndexedElementVisitor<P> implements AlkemyElementVisitor<P
         return Index.class == type;
     }
 
-    public static class IndexedElement extends AbstractAlkemyElement<IndexedElement>
+    public static class IndexedElement extends VisitableAlkemyElement
     {
         private final int index;
 
-        protected IndexedElement(AbstractAlkemyElement<?> ae)
+        protected IndexedElement(VisitableAlkemyElement ae)
         {
             super(ae);
             index = ae.desc().getAnnotation(Index.class).value();

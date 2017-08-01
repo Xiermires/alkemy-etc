@@ -13,46 +13,21 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common;
+package org.alkemy.etc.bitmask;
 
-import org.alkemy.common.IndexedElementVisitor.Index;
-import org.alkemy.common.TaggedElementVisitor.Tag;
+import org.alkemy.etc.bitmask.BitMask.Bits;
 
 public class TestClass
 {
-    @Index(0)
-    int i0 = 4;
-
-    @Index(1)
-    int i1 = 3;
-
-    @Index(2)
-    int i2 = 2;
-
-    @Index(3)
-    int i3 = 1;
-
-    @Index(4)
-    int i4 = 0;
-
-    @Tag("id0")
-    int i5 = 4;
-
-    @Tag("id1")
-    int i6 = 3;
-
-    @Tag("id2")
-    int i7 = 2;
-
-    @Tag("id3")
-    int i8 = 1;
-
-    @Tag("id4")
-    int i9 = 0;
-
-    @Tag("{&dyn1}")
-    int i10 = 5;
-
-    @Tag("{&prefix}.bbb.{&infix}.ddd.{&suffix}")
-    int i11 = 6;
+    @Bits(shift = 3)
+    int a;
+    
+    @Bits(shift = 2)
+    int b;
+    
+    @Bits(shift = 1)
+    int c;
+    
+    @Bits(shift = 0)
+    int d;
 }

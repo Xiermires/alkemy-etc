@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.alkemy.common.csv;
 
-import org.alkemy.common.IndexedElementVisitor;
 import org.alkemy.common.util.TypedValueFromStringArray;
+import org.alkemy.etc.IndexedElementVisitor;
 
 public class CsvReader extends IndexedElementVisitor<String[]>
 {

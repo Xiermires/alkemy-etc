@@ -1,4 +1,4 @@
-package org.alkemy.common.setting;
+package org.alkemy.etc.setting;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,15 +7,14 @@ import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.alkemy.Alkemy;
 import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.common.DynamicVariable;
-import org.alkemy.parse.impl.AbstractAlkemyElement;
-import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
+import org.alkemy.common.Alkemy;
+import org.alkemy.common.parse.impl.VisitableAlkemyElement;
+import org.alkemy.common.visitor.AlkemyElementVisitor;
+import org.alkemy.etc.DynamicVariable;
 import org.alkemy.util.Assertions;
-import org.alkemy.visitor.AlkemyElementVisitor;
 
-public class SettingHandler
+public class SettingManager
 {
     public static <R> R load(R r, Provider provider)
     {
@@ -47,7 +46,7 @@ public class SettingHandler
         }
 
         @Override
-        public SettingElement map(AlkemyElement e)
+        public SettingElement map(VisitableAlkemyElement e)
         {
             return new SettingElement(e);
         }
@@ -99,14 +98,14 @@ public class SettingHandler
         }
     }
 
-    public static class SettingElement extends AbstractAlkemyElement<SettingElement>
+    public static class SettingElement extends VisitableAlkemyElement
     {
         private final static Pattern p = Pattern.compile("\\{&(.+?)\\}");
 
         final String key;
         final boolean dynamic;
 
-        protected SettingElement(AbstractAlkemyElement<?> other)
+        protected SettingElement(VisitableAlkemyElement other)
         {
             super(other);
 

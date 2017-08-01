@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.alkemy.common.util;
 
-import org.alkemy.common.IndexedElementVisitor.IndexedElement;
-import org.alkemy.util.AbstractAlkemyValueProvider;
+import org.alkemy.common.util.AbstractAlkemyValueProvider;
+import org.alkemy.etc.IndexedElementVisitor.IndexedElement;
 import org.alkemy.util.Assertions;
 
 public class TypedValueFromStringArray extends AbstractAlkemyValueProvider<IndexedElement, String[]>

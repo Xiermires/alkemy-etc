@@ -13,16 +13,16 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *******************************************************************************/
-package org.alkemy.common.bitmask;
+package org.alkemy.etc.bitmask;
 
-import org.alkemy.common.bitmask.BitMask.Bits;
-import org.alkemy.parse.impl.AbstractAlkemyElement.AlkemyElement;
-import org.alkemy.visitor.AlkemyElementVisitor;
+import org.alkemy.common.parse.impl.VisitableAlkemyElement;
+import org.alkemy.common.visitor.AlkemyElementVisitor;
+import org.alkemy.etc.bitmask.BitMask.Bits;
 
-public class LongMaskVisitor<R> implements AlkemyElementVisitor<Long, BitMask>
+public class LongMaskVisitor implements AlkemyElementVisitor<Long, BitMask>
 {
     @Override
-    public BitMask map(AlkemyElement e)
+    public BitMask map(VisitableAlkemyElement e)
     {
         return new BitMask(e);
     }

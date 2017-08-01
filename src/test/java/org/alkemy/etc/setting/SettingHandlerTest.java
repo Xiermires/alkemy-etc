@@ -1,10 +1,12 @@
-package org.alkemy.common.setting;
+package org.alkemy.etc.setting;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Properties;
 
+import org.alkemy.etc.setting.Provider;
+import org.alkemy.etc.setting.SettingManager;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,14 +26,14 @@ public class SettingHandlerTest
         props.put("lorem.ipsum.dolor", 3);
 
         // Load win settings.
-        final TestClass tcw = SettingHandler.load(new TestClass(), ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
+        final TestClass tcw = SettingManager.load(new TestClass(), ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
                 props));
         assertThat(tcw.bar, is(1));
         assertThat(tcw.foo, is(1));
         assertThat(tcw.lorem, is(3));
 
         // Load lnx settings.
-        final TestClass tcl = SettingHandler.load(new TestClass(), ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
+        final TestClass tcl = SettingManager.load(new TestClass(), ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
                 props));
         assertThat(tcl.bar, is(2));
         assertThat(tcl.foo, is(2));
@@ -42,7 +44,7 @@ public class SettingHandlerTest
         tcw.lorem = 6;
         
         // Persist win settings
-        SettingHandler.persist(tcw, ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
+        SettingManager.persist(tcw, ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
                 props));
         
         assertThat(props.get("win.zip.foo"), is(4));
@@ -54,7 +56,7 @@ public class SettingHandlerTest
         tcl.lorem = 9;
         
         // Persist lnx settings
-        SettingHandler.persist(tcl, ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
+        SettingManager.persist(tcl, ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
                 props));
         
         assertThat(props.get("lnx.zip.foo"), is(7));
