@@ -35,6 +35,6 @@ instrs = @Instr(classNames = { "org.alkemy.etc.TestClass", //
         "org.alkemy.etc.csv.TestClass", //
         "org.alkemy.etc.setting.TestClass"
 }, ctf = AlkemizerCTF.class))
-public class AlkemyEtcInstrTestSuite
+public class InstrTestSuite
 {
 }
