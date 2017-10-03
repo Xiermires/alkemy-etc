@@ -6,7 +6,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 
 import org.alkemy.etc.model.Person.Gender;
-import org.alkemy.util.Nodes.TypedNode;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -49,8 +48,8 @@ public class DataModelTest
     public void testRead()
     {
         final BookShelfHandler<Integer, Person> handler = new BookShelfHandler<>(provider);
-        final Person oscar = handler.pickup(TypedNode.create(Person.class), 1);
-        final Person stella = handler.pickup(TypedNode.create(Person.class), 2);
+        final Person oscar = handler.pick(1, Person.class);
+        final Person stella = handler.pick(2, Person.class);
         assertThat(oscar.name, is("Oscar"));
         assertThat(oscar.gender, is(Gender.Male));
         assertThat(oscar.height, is(1.73));

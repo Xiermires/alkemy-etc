@@ -19,8 +19,9 @@ public class BookShelfHandler<K, V>
         this.provider = provider;
     }
 
-    public V pickup(TypedNode<V, ? extends AlkemyElement> root, K key)
+    protected V pick(K key, Class<V> type)
     {
+        final TypedNode<V, AlkemyElement> root = TypedNode.create(type);
         final V instance = root.data().newInstance(root.type());
         if (instance != null)
         {
