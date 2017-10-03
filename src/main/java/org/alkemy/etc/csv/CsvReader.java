@@ -19,53 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package org.alkemy.etc;
+package org.alkemy.etc.csv;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.alkemy.etc.IndexedElementVisitor;
+import org.alkemy.etc.util.TypedValueFromStringArray;
 
-import org.alkemy.annotations.AlkemyLeaf;
-import org.alkemy.common.parse.impl.VisitableAlkemyElement;
-import org.alkemy.common.visitor.AlkemyElementVisitor;
-import org.alkemy.etc.IndexedElementVisitor.IndexedElement;
-
-public abstract class IndexedElementVisitor<P> implements AlkemyElementVisitor<P, IndexedElement>
+public class CsvReader extends IndexedElementVisitor<String[]>
 {
-    @Override
-    public IndexedElement map(VisitableAlkemyElement e)
-    {
-        return new IndexedElement(e);
-    }
+    final TypedValueFromStringArray tvfs = new TypedValueFromStringArray();
 
     @Override
-    public boolean accepts(Class<?> type)
+    public void visit(IndexedElement e, Object parent, String[] parameter)
     {
-        return Index.class == type;
-    }
-
-    public static class IndexedElement extends VisitableAlkemyElement
-    {
-        private final int index;
-
-        protected IndexedElement(VisitableAlkemyElement ae)
-        {
-            super(ae);
-            index = ae.desc().getAnnotation(Index.class).value();
-        }
-
-        public int getIndex()
-        {
-            return index;
-        }
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD })
-    @AlkemyLeaf(Index.class)
-    public @interface Index
-    {
-        int value();
+        e.set(tvfs.getValue(e, parameter), parent);
     }
 }

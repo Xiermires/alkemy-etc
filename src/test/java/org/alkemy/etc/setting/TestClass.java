@@ -21,7 +21,7 @@
  *******************************************************************************/
 package org.alkemy.etc.setting;
 
-import org.alkemy.etc.setting.SettingManager.Setting;
+import org.alkemy.etc.setting.SettingStore.Setting;
 
 public class TestClass
 {
@@ -31,6 +31,5 @@ public class TestClass
     @Setting("{&os}.bar")
     int bar;
     
-    @Setting("lorem.ipsum.dolor")
-    int lorem;
+    InnerTestClass inner;
 }

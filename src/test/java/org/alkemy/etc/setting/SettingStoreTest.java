@@ -26,16 +26,14 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Properties;
 
-import org.alkemy.etc.setting.Provider;
-import org.alkemy.etc.setting.SettingManager;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-public class SettingHandlerTest
+public class SettingStoreTest
 {
     @Test
-    public void testSettingHandler()
+    public void testSettingStore()
     {
         final Properties props = new Properties();
 
@@ -46,40 +44,38 @@ public class SettingHandlerTest
         props.put("lnx.bar", 2);
         props.put("lorem.ipsum.dolor", 3);
 
+        final SettingStore<TestClass> store = new SettingStore<>(TestClass.class);
+
         // Load win settings.
-        final TestClass tcw = SettingManager.load(new TestClass(), ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
-                props));
+        final TestClass tcw = store.read(new IntProvider(props), ImmutableMap.of("os", "win", "app", "zip"));
         assertThat(tcw.bar, is(1));
         assertThat(tcw.foo, is(1));
-        assertThat(tcw.lorem, is(3));
+        assertThat(tcw.inner.lorem, is(3));
 
         // Load lnx settings.
-        final TestClass tcl = SettingManager.load(new TestClass(), ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
-                props));
+        final TestClass tcl = store.read(new IntProvider(props), ImmutableMap.of("os", "lnx", "app", "zip"));
         assertThat(tcl.bar, is(2));
         assertThat(tcl.foo, is(2));
-        assertThat(tcl.lorem, is(3));
-        
-        tcw.foo = 4; 
+        assertThat(tcl.inner.lorem, is(3));
+
+        tcw.foo = 4;
         tcw.bar = 5;
-        tcw.lorem = 6;
-        
+        tcw.inner.lorem = 6;
+
         // Persist win settings
-        SettingManager.persist(tcw, ImmutableMap.of("os", "win", "app", "zip"), new IntProvider(
-                props));
-        
+        store.write(tcw, new IntProvider(props), ImmutableMap.of("os", "win", "app", "zip"));
+
         assertThat(props.get("win.zip.foo"), is(4));
         assertThat(props.get("win.bar"), is(5));
         assertThat(props.get("lorem.ipsum.dolor"), is(6));
-        
+
         tcl.foo = 7;
         tcl.bar = 8;
-        tcl.lorem = 9;
-        
+        tcl.inner.lorem = 9;
+
         // Persist lnx settings
-        SettingManager.persist(tcl, ImmutableMap.of("os", "lnx", "app", "zip"), new IntProvider(
-                props));
-        
+        store.write(tcl, new IntProvider(props), ImmutableMap.of("os", "lnx", "app", "zip"));
+
         assertThat(props.get("lnx.zip.foo"), is(7));
         assertThat(props.get("lnx.bar"), is(8));
         assertThat(props.get("lorem.ipsum.dolor"), is(9));
