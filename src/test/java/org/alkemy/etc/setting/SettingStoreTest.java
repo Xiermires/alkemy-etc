@@ -49,13 +49,13 @@ public class SettingStoreTest
         final SettingStore store = new SettingStore(intProvider);
 
         // Load win settings.
-        final TestClass tcw = store.read(ImmutableMap.of("os", "win", "app", "zip"), TestClass.class);
+        final TestClass tcw = store.read(TestClass.class, ImmutableMap.of("os", "win", "app", "zip"));
         assertThat(tcw.bar, is(1));
         assertThat(tcw.foo, is(1));
         assertThat(tcw.inner.lorem, is(3));
 
         // Load lnx settings.
-        final TestClass tcl = store.read(ImmutableMap.of("os", "lnx", "app", "zip"), TestClass.class);
+        final TestClass tcl = store.read(TestClass.class, ImmutableMap.of("os", "lnx", "app", "zip"));
         assertThat(tcl.bar, is(2));
         assertThat(tcl.foo, is(2));
         assertThat(tcl.inner.lorem, is(3));

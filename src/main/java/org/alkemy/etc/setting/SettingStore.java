@@ -52,7 +52,7 @@ public class SettingStore
         this.p = p;
     }
 
-    public <T> T read(Map<String, String> variables, Class<T> type)
+    public <T> T read(Class<T> type, Map<String, String> variables)
     {
         final TypedNode<T, SettingElement> root = TypedNode.create(Alkemy.parse(type//
                 , p -> Setting.class == p.alkemyType() || p.isNode() //
