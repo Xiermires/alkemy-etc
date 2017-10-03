@@ -126,7 +126,7 @@ and map them using something similar to.
     return new BookShelfHandler(p).pickup(key, type);
 }
 
-<K, T> T putback(Provider p, K key, T instance) 
+<K, T> void putback(Provider p, K key, T instance) 
 {
-    return new BookShelfHandler(p).putback(key, instance);
+    new BookShelfHandler(p).putback(key, instance);
 }
