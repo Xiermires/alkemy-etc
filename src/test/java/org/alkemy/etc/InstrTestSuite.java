@@ -33,14 +33,17 @@ testClassNames = { "org.alkemy.etc.IndexedElementTest", //
         "org.alkemy.etc.TaggedElementTest", //
         "org.alkemy.etc.bitmask.LongMaskVisitorTest", //
         "org.alkemy.etc.csv.CsvReaderTest", //
-        "org.alkemy.etc.setting.SettingHandlerTest"
+        "org.alkemy.etc.setting.SettingStoreTest", //
+        "org.alkemy.etc.model.DataModelTest"
 }, //
 instrs = @Instr(classNames = { "org.alkemy.etc.TestClass", //
         "org.alkemy.etc.bitmask.TestClass", //
         "org.alkemy.etc.bitmask.TestMp3Frame", //
         "org.alkemy.etc.csv.TestClass", //
         "org.alkemy.etc.setting.TestClass", //
-        "org.alkemy.etc.setting.InnerTestClass"
+        "org.alkemy.etc.setting.InnerTestClass", //
+        "org.alkemy.etc.model.Person", //
+        "org.alkemy.etc.model.Address"
 }, ctf = AlkemizerCTF.class))
 public class InstrTestSuite
 {
