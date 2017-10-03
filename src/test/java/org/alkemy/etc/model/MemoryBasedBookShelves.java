@@ -14,16 +14,15 @@ public class MemoryBasedBookShelves implements Provider<Integer>
     final Map<String, Table<Integer, String, Object>> bookShelves = new HashMap<>();
 
     @Override
-    public List<Object> put(String bookShelfName, Integer key, String shelfName, Object value)
+    public void put(String bookShelfName, Integer key, String shelfName, Object value)
     {
-        final Table<Integer, String, Object> bookShelf = bookShelves.get(bookShelfName);
+        Table<Integer, String, Object> bookShelf = bookShelves.get(bookShelfName);
         if (bookShelf == null) {
-            final HashBasedTable<Integer, String, Object> table = HashBasedTable.create();
-            bookShelves.put(bookShelfName, table);
-            table.put(key, shelfName, value);
-            return null;
+            bookShelf = HashBasedTable.create();
+            bookShelves.put(bookShelfName, bookShelf);
+            bookShelf.put(key, shelfName, value);
         } else {
-            return Arrays.asList(bookShelf.put(key, shelfName, value));
+            bookShelf.put(key, shelfName, value);
         }
     }
     
