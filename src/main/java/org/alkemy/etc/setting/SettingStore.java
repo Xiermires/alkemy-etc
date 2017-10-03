@@ -43,32 +43,49 @@ import org.alkemy.util.Nodes.TypedNode;
 import org.alkemy.util.Pair;
 import org.alkemy.util.ReferredInstanceTracker;
 
-public class SettingStore<T>
+public class SettingStore
 {
-    private final TypedNode<T, SettingElement> root;
+    private final Provider p;
 
-    public SettingStore(Class<T> type)
+    public SettingStore(Provider p)
     {
-        root = TypedNode.create(Alkemy.parse(type//
+        this.p = p;
+    }
+
+    public <T> T read(Map<String, String> variables, Class<T> type)
+    {
+        final TypedNode<T, SettingElement> root = TypedNode.create(Alkemy.parse(type//
                 , p -> Setting.class == p.alkemyType() || p.isNode() //
                 , e -> new SettingElement(e))//
                 , type);
 
         nodesFirst(root);
+        
+        final SettingReader<T> reader = new SettingReader<T>(p, root, variables);
+        root.postorder().forEach(reader);
+        return reader.parent;
     }
 
-    public static <T> T read(Class<T> type, Provider p, Map<String, String> variables)
+    public <T> T write(T t, Map<String, String> variables)
     {
-        return new SettingStore<T>(type).read(p, variables);
-    }
+        @SuppressWarnings("unchecked")
+        final Class<T> type = (Class<T>) t.getClass();
+        
+        final TypedNode<T, SettingElement> root = TypedNode.create(Alkemy.parse(type //
+                , p -> Setting.class == p.alkemyType() || p.isNode() //
+                , e -> new SettingElement(e))//
+                , type);
 
-    public static <T> T write(Class<T> type, T t, Provider p, Map<String, String> variables)
-    {
-        return new SettingStore<T>(type).write(t, p, variables);
+        nodesFirst(root);
+        
+        final ReferredInstanceTracker<SettingElement> parent = new ReferredInstanceTracker<>(t);
+        final SettingWriter<T> writer = new SettingWriter<T>(parent, p, variables);
+        root.preorder(parent).forEach(writer);
+        return t;
     }
-
+    
     // sort to avoid recursion while writing
-    private void nodesFirst(Node<SettingElement> r)
+    private static void nodesFirst(Node<SettingElement> r)
     {
         final Comparator<Node<SettingElement>> cmp = (lhs, rhs) ->
         {
@@ -80,21 +97,6 @@ public class SettingStore<T>
             Collections.sort(r.children(), cmp);
         }
         r.children().forEach(e -> nodesFirst(e));
-    }
-
-    public T read(Provider p, Map<String, String> variables)
-    {
-        final SettingReader<T> reader = new SettingReader<T>(p, root, variables);
-        root.postorder().forEach(reader);
-        return reader.parent;
-    }
-
-    public T write(T t, Provider p, Map<String, String> variables)
-    {
-        final ReferredInstanceTracker<SettingElement> parent = new ReferredInstanceTracker<>(t);
-        final SettingWriter<T> writer = new SettingWriter<T>(parent, p, variables);
-        root.preorder(parent).forEach(writer);
-        return t;
     }
 
     public static class SettingReader<T> implements Consumer<SettingElement>

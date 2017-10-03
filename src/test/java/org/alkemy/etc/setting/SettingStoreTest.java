@@ -44,16 +44,18 @@ public class SettingStoreTest
         props.put("lnx.bar", 2);
         props.put("lorem.ipsum.dolor", 3);
 
-        final SettingStore<TestClass> store = new SettingStore<>(TestClass.class);
+        final IntProvider intProvider = new IntProvider(props);
+        
+        final SettingStore store = new SettingStore(intProvider);
 
         // Load win settings.
-        final TestClass tcw = store.read(new IntProvider(props), ImmutableMap.of("os", "win", "app", "zip"));
+        final TestClass tcw = store.read(ImmutableMap.of("os", "win", "app", "zip"), TestClass.class);
         assertThat(tcw.bar, is(1));
         assertThat(tcw.foo, is(1));
         assertThat(tcw.inner.lorem, is(3));
 
         // Load lnx settings.
-        final TestClass tcl = store.read(new IntProvider(props), ImmutableMap.of("os", "lnx", "app", "zip"));
+        final TestClass tcl = store.read(ImmutableMap.of("os", "lnx", "app", "zip"), TestClass.class);
         assertThat(tcl.bar, is(2));
         assertThat(tcl.foo, is(2));
         assertThat(tcl.inner.lorem, is(3));
@@ -63,7 +65,7 @@ public class SettingStoreTest
         tcw.inner.lorem = 6;
 
         // Persist win settings
-        store.write(tcw, new IntProvider(props), ImmutableMap.of("os", "win", "app", "zip"));
+        store.write(tcw, ImmutableMap.of("os", "win", "app", "zip"));
 
         assertThat(props.get("win.zip.foo"), is(4));
         assertThat(props.get("win.bar"), is(5));
@@ -74,7 +76,7 @@ public class SettingStoreTest
         tcl.inner.lorem = 9;
 
         // Persist lnx settings
-        store.write(tcl, new IntProvider(props), ImmutableMap.of("os", "lnx", "app", "zip"));
+        store.write(tcl, ImmutableMap.of("os", "lnx", "app", "zip"));
 
         assertThat(props.get("lnx.zip.foo"), is(7));
         assertThat(props.get("lnx.bar"), is(8));
