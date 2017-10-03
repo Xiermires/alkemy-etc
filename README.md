@@ -56,9 +56,9 @@ and map the settings from/to a provider using some code like the below one.
     return new SettingStore(p).read(type, args);
 }
 
-<T> T write(Provider p, T instance, Map<String, String> args) 
+<T> void write(Provider p, T instance, Map<String, String> args) 
 {
-    return new SettingStore(p).write(instance, args);
+    new SettingStore(p).write(instance, args);
 }
 ```
 
