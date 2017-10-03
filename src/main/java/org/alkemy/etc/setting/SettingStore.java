@@ -25,15 +25,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.alkemy.Alkemy;
@@ -44,7 +41,7 @@ import org.alkemy.util.Assertions;
 import org.alkemy.util.Node;
 import org.alkemy.util.Nodes.TypedNode;
 import org.alkemy.util.Pair;
-import org.alkemy.util.Traversers.Callback;
+import org.alkemy.util.ReferredInstanceTracker;
 
 public class SettingStore<T>
 {
@@ -94,7 +91,7 @@ public class SettingStore<T>
 
     public T write(T t, Provider p, Map<String, String> variables)
     {
-        final CurrentInstance parent = new CurrentInstance(t);
+        final ReferredInstanceTracker<SettingElement> parent = new ReferredInstanceTracker<>(t);
         final SettingWriter<T> writer = new SettingWriter<T>(parent, p, variables);
         root.preorder(parent).forEach(writer);
         return t;
@@ -147,51 +144,13 @@ public class SettingStore<T>
         }
     }
 
-    static class CurrentInstance implements Callback<SettingElement>, Supplier<Object>
-    {
-        Object ref = null;
-        final Deque<Object> instances = new ArrayDeque<>();
-
-        CurrentInstance(Object o)
-        {
-            ref = o;
-        }
-
-        @Override
-        public boolean onEnterNode(Node<SettingElement> node)
-        {
-            final Object instance = node.data().get(ref);
-            if (instance != null)
-            {
-                instances.push(ref);
-                ref = instance;
-            }
-            return instance != null;
-        }
-
-        @Override
-        public boolean onExitNode(Node<SettingElement> node)
-        {
-            if (!instances.isEmpty())
-                ref = instances.pop();
-            
-            return true;
-        }
-
-        @Override
-        public Object get()
-        {
-            return ref;
-        }
-    }
-
     public static class SettingWriter<T> implements Consumer<SettingElement>
     {
-        private final CurrentInstance ref;
+        private final ReferredInstanceTracker<SettingElement> ref;
         private final Provider p;
         private final Map<String, String> m;
 
-        SettingWriter(CurrentInstance ref, Provider p, Map<String, String> m)
+        SettingWriter(ReferredInstanceTracker<SettingElement> ref, Provider p, Map<String, String> m)
         {
             this.ref = ref;
             this.p = p;
