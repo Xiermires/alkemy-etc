@@ -25,8 +25,8 @@ import static org.alkemy.common.visitor.impl.AbstractTraverser.INSTANTIATE_NODES
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.alkemy.common.Alkemy;
-import org.alkemy.common.Alkemy.SingleTypeReader;
+import org.alkemy.common.AlkemyCommon;
+import org.alkemy.common.AlkemyCommon.SingleTypeReader;
 import org.junit.Test;
 
 public class LongMaskVisitorTest
@@ -35,7 +35,7 @@ public class LongMaskVisitorTest
     public void testMaskOneBit()
     {
         final LongMaskVisitor aev = new LongMaskVisitor();
-        final SingleTypeReader<TestClass, Long> reader = Alkemy.reader(TestClass.class, Long.class).preorder(INSTANTIATE_NODES);
+        final SingleTypeReader<TestClass, Long> reader = AlkemyCommon.reader(TestClass.class, Long.class).preorder(INSTANTIATE_NODES);
 
         final TestClass tc15 = reader.create(aev, BitMask.bytesToLong(new byte[] { 15 }));
 
@@ -63,7 +63,7 @@ public class LongMaskVisitorTest
     public void testMp3Frame()
     {
         final Long header = BitMask.bytesToLong(new byte[] { -1, -5, -112, 0 });
-        final TestMp3Frame frame = Alkemy.reader(TestMp3Frame.class, Long.class)//
+        final TestMp3Frame frame = AlkemyCommon.reader(TestMp3Frame.class, Long.class)//
                 .preorder(INSTANTIATE_NODES).create(new LongMaskVisitor(), header);
 
         assertThat(frame.framSync, is(2047));

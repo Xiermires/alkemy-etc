@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.alkemy.common.Alkemy;
+import org.alkemy.common.AlkemyCommon;
 import org.alkemy.common.parse.impl.VisitableAlkemyElement;
 import org.alkemy.common.visitor.impl.AlkemyPreorderReader;
 import org.alkemy.util.Measure;
@@ -42,7 +42,7 @@ public class IndexedElementTest
         final Properties m = new Properties();
         final TestClass tc = new TestClass();
         new AlkemyPreorderReader<TestClass, Object>(0).accept(new FunctionOnIndexed<TestClass>((a, b) -> m.put(a, b)),
-                Alkemy.rootNode(TestClass.class), tc);
+                AlkemyCommon.rootNode(TestClass.class), tc);
 
         assertThat(m, hasEntry(0, 4));
         assertThat(m, hasEntry(1, 3));
@@ -59,7 +59,7 @@ public class IndexedElementTest
         final TestClass tc = new TestClass();
         final AlkemyPreorderReader<TestClass, Object> anv = new AlkemyPreorderReader<>(0);
         final FunctionOnIndexed<TestClass> aev = new FunctionOnIndexed<>((a, b) -> m.put(a, b));
-        final TypedNode<TestClass, ? extends VisitableAlkemyElement> node = Alkemy.rootNode(TestClass.class);
+        final TypedNode<TestClass, ? extends VisitableAlkemyElement> node = AlkemyCommon.rootNode(TestClass.class);
 
         System.out.println("Handle 5e6 indexed elements: " + Measure.measure(() ->
         {

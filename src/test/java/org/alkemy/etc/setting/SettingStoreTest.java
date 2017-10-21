@@ -45,7 +45,7 @@ public class SettingStoreTest
         props.put("lorem.ipsum.dolor", 3);
 
         final IntProvider intProvider = new IntProvider(props);
-        
+
         final SettingStore store = new SettingStore(intProvider);
 
         // Load win settings.

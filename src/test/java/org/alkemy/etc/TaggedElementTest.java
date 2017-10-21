@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.alkemy.common.Alkemy;
-import org.alkemy.common.Alkemy.SingleTypeReader;
+import org.alkemy.common.AlkemyCommon;
+import org.alkemy.common.AlkemyCommon.SingleTypeReader;
 import org.alkemy.etc.DynamicVariable;
 import org.alkemy.etc.TaggedElementVisitor;
 import org.alkemy.util.Measure;
@@ -42,7 +42,7 @@ public class TaggedElementTest
     public void testStaticTags()
     {
         final Properties props = new Properties();
-        Alkemy.mature(TestClass.class, new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)));
+        AlkemyCommon.mature(TestClass.class, new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)));
 
         assertThat(props, hasEntry("id0", 4));
         assertThat(props, hasEntry("id1", 3));
@@ -55,7 +55,7 @@ public class TaggedElementTest
     public void testDynamicTags()
     {
         final Properties props = new Properties();
-        Alkemy.mature(TestClass.class,
+        AlkemyCommon.mature(TestClass.class,
                 new FunctionOnTaggedSlow<TestClass>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()));
 
         assertThat(props, hasEntry("id10", 5));
@@ -66,7 +66,7 @@ public class TaggedElementTest
     public void testStaticTagsFast()
     {
         final Properties props = new Properties();
-        Alkemy.mature(TestClass.class, new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)));
+        AlkemyCommon.mature(TestClass.class, new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b)));
 
         assertThat(props, hasEntry("id0", 4));
         assertThat(props, hasEntry("id1", 3));
@@ -79,7 +79,7 @@ public class TaggedElementTest
     public void testDynamicTagsFast()
     {
         final Properties props = new Properties();
-        Alkemy.mature(TestClass.class,
+        AlkemyCommon.mature(TestClass.class,
                 new FunctionOnTaggedFast<TestClass>((a, b) -> props.put(a, b)).dynamicVariables(dynParams()));
 
         assertThat(props, hasEntry("id10", 5));
@@ -92,7 +92,7 @@ public class TaggedElementTest
         final Properties props = new Properties();
         final TestClass tc = new TestClass();
 
-        final SingleTypeReader<TestClass, ?> anv = Alkemy.reader(TestClass.class).preorder(0);
+        final SingleTypeReader<TestClass, ?> anv = AlkemyCommon.reader(TestClass.class).preorder(0);
         final TaggedElementVisitor<?> aev = new FunctionOnTaggedSlow<>((a, b) -> props.put(a, b))
                 .dynamicVariables(dynParams());
 
@@ -111,7 +111,7 @@ public class TaggedElementTest
         final Properties props = new Properties();
         final TestClass tc = new TestClass();
      
-        final SingleTypeReader<TestClass,  ?> anv = Alkemy.reader(TestClass.class).preorder(0);
+        final SingleTypeReader<TestClass,  ?> anv = AlkemyCommon.reader(TestClass.class).preorder(0);
         final TaggedElementVisitor<TestClass> aev = new FunctionOnTaggedFast<TestClass>((a, b) -> props.put(a, b))
                 .dynamicVariables(dynParams());
 

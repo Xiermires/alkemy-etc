@@ -32,8 +32,8 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alkemy.common.Alkemy;
-import org.alkemy.common.Alkemy.SingleTypeReader;
+import org.alkemy.common.AlkemyCommon;
+import org.alkemy.common.AlkemyCommon.SingleTypeReader;
 import org.junit.Test;
 
 public class CsvReaderTest
@@ -49,7 +49,7 @@ public class CsvReaderTest
                 new ByteArrayInputStream(EXAMPLE.getBytes("UTF-8"))));
 
         final CsvReader aev = new CsvReader();
-        final SingleTypeReader<TestClass, String[]> reader = Alkemy.reader(TestClass.class, String[].class)//
+        final SingleTypeReader<TestClass, String[]> reader = AlkemyCommon.reader(TestClass.class, String[].class)//
                 .preorder(INSTANTIATE_NODES);
 
         final List<TestClass> tcs = buffer.lines().map(l -> l.split(",")).map(l -> reader.create(aev, l)).collect(
