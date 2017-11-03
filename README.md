@@ -44,7 +44,7 @@ public class TemperatureChecker
 }
 ```
 
-Now we can code something in this direction and we are pretty much done.
+Now we can code something in this direction.
 
 ```java
 public class TemperatureChecker 
