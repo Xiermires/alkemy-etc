@@ -91,7 +91,7 @@ public class TemperatureChecker
 }
 ```
 
-since we are not using the constants are private and we used them once, we remove them for a resulting class. 
+since the constants are private and we used them once, we remove them for a resulting class. 
 
 ```java
 public class TemperatureChecker 
